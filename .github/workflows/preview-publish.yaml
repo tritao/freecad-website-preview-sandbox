@@ -17,7 +17,7 @@ jobs:
     steps:
       - name: Validate current pull request
         id: pr
-        uses: actions/github-script@373c709c69115d41ff229c7e5df9f8788daa9553 # v9
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         env:
           PR_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
         with:
@@ -55,7 +55,7 @@ jobs:
           keep_files: true
           commit_message: Preview PR #${{ steps.pr.outputs.number }} at ${{ steps.pr.outputs.sha }}
       - name: Post preview comment
-        uses: actions/github-script@373c709c69115d41ff229c7e5df9f8788daa9553 # v9
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         env:
           PR_NUMBER: ${{ steps.pr.outputs.number }}
         with:
