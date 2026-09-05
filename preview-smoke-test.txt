@@ -1,1 +1,2 @@
 This harmless change exercises the automatic pull request preview workflow.
+This second revision verifies that an existing preview is replaced cleanly.
