@@ -1,0 +1,106 @@
+{{- /*
+SPDX-License-Identifier: MIT
+SPDX-FileCopyrightText: 2026 FreeCAD
+SPDX-FileNotice: Part of the Trigo theme for Hugo.
+*/ -}}
+
+{{- /* Paginator for Lists:
+
+  - Paginates RegularPages and Sections for top-level.
+  - Renders card pages.
+  - Pagination navigation with first, prev, next, last pagers.
+
+  @returns {template.HTML}
+*/ -}}
+
+
+{{- /* Get latest RegularPages, or Sections for top-level Section. */ -}}
+{{- $pages := .Pages -}}
+
+{{- with (.Paginate $pages).Pages -}}
+  <div class="card-list wide">
+    <div class="cards">
+      {{- range . -}}
+        {{- $key := partialCached "utils/cache_key.html" . . -}}
+        {{- partialCached "main/card.html" . $key -}}
+      {{- end -}}
+    </div>
+
+    {{- with $.Paginator -}}
+      {{- if gt .TotalPages 1 -}}
+        <nav
+          aria-label="Pagination"
+          class="pagination">
+
+          {{- $page_number := .PageNumber -}}
+          {{- $start := partialCached "utils/icon.html" "tri_tri_left" "tri_tri_left" -}}
+          {{- $left := partialCached "utils/icon.html" "tri_left" "tri_left" -}}
+          {{- $right := partialCached "utils/icon.html" "tri_right" "tri_right" -}}
+          {{- $end := partialCached "utils/icon.html" "tri_tri_right" "tri_tri_right" -}}
+
+          {{- with .First -}}
+            {{- if ne $page_number .PageNumber -}}
+              <a
+                href="{{ .URL }}"
+                class="button"
+                title="{{ i18n "first_page" | default "First Page" }}"
+                aria-label="First">
+
+                {{- $start -}} {{ .PageNumber }}
+              </a>
+            {{- end -}}
+          {{- end -}}
+
+          {{- with .Prev -}}
+            {{- if ne .First . -}}
+              <a
+                href="{{ .URL }}"
+                class="button"
+                title="{{ i18n "prev_page" | default "Previous Page" }}"
+                aria-label="Previous">
+
+                {{- $left -}} {{ .PageNumber }}
+              </a>
+            {{- end -}}
+          {{- end -}}
+
+          <span
+            aria-current="page"
+            class="button active"
+            aria-label="Current">
+
+            {{- $page_number -}}
+          </span>
+
+          {{- with .Next -}}
+            {{- if ne .Last . -}}
+              <a
+                href="{{ .URL }}"
+                class="button"
+                title="{{ i18n "next_page" | default "Next Page" }}"
+                aria-label="Next">
+
+                {{- .PageNumber -}} {{ $right }}
+              </a>
+            {{- end -}}
+          {{- end -}}
+
+          {{- with .Last -}}
+            {{- if ne $page_number .PageNumber -}}
+              <a
+                href="{{ .URL }}"
+                class="button"
+                title="{{ i18n "last_page" | default "Last Page" }}"
+                aria-label="Last">
+
+                {{- .PageNumber -}} {{- $end -}}
+              </a>
+            {{- end -}}
+          {{- end -}}
+
+        </nav>
+      {{- end -}}
+    {{- end -}}
+
+  </div>
+{{- end -}}

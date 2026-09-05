@@ -1,0 +1,695 @@
+/*
+SPDX-License-Identifier: MIT
+SPDX-FileCopyrightText: 2026 FreeCAD
+SPDX-FileNotice: Part of the Trigo theme for Hugo.
+*/
+
+/* Custom partials CSS stylesheet. */
+
+
+/* Download box */
+
+.download-box {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-content: space-evenly;
+  flex-wrap: wrap;
+  gap: var(--gap);
+  width: var(--width);
+  margin: var(--gap) auto;
+  z-index: 2;
+}
+
+.download-card {
+  flex: 1 1 25%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  padding: var(--gap);
+  border-radius: var(--radius);
+  background: var(--muted);
+  box-shadow: var(--shadow);
+}
+
+.download-platform {
+  text-align: center;
+}
+
+.download-platform svg {
+  width: var(--xxxl);
+  height: var(--xxxl);
+  color: var(--secondary);
+}
+
+.download-platform p {
+  color: var(--tertiary);
+  font-size: var(--s);
+}
+
+.download-buttons {
+  display: flex;
+  flex-direction: column;
+}
+
+.download-buttons .button {
+  display: inline-flex;
+  padding: 0;
+}
+
+.download-buttons .button:focus-within {
+  outline: var(--outline-focus);
+}
+
+.download-buttons .link-donate {
+  padding: calc(var(--gap) * 0.75);
+  color: var(--secondary);
+  outline: transparent;
+  flex: 1;
+}
+
+.download-buttons span {
+  margin-inline-start: calc(var(--gap) * 0.5);
+  color: var(--tertiary);
+  font-size: var(--s);
+}
+
+.download-buttons .checksum-button {
+  padding: calc(var(--gap) * 0.75);
+  color: var(--tertiary);
+  font-size: var(--s);
+}
+
+.download-buttons .checksum-button.copied {
+  color: var(--primary);
+}
+
+.download-buttons svg {
+  vertical-align: calc(var(--gap) * -0.125);
+}
+
+.download-buttons .checksum-button:is(:hover, :focus-visible) {
+  color: var(--accent-color);
+  outline: transparent;
+}
+
+.download-buttons .button:has(.checksum-button:focus-visible) {
+  outline: var(--border);;
+}
+
+.download-release {
+  display: flex;
+  flex-direction: column;
+}
+
+.download-release h4 {
+  color: var(--secondary);
+}
+
+.unstable-list {
+  display: flex;
+  flex-direction: column;
+  width: var(--width);
+  gap: var(--gap);
+}
+
+.unstable-list h3 svg {
+  width: var(--l);
+  height: var(--l);
+  vertical-align: calc(var(--gap) * -0.125);
+}
+
+.release-title span:first-of-type::before {
+  content: " · ";
+}
+
+.unstable-list .download-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.os-group {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Welcome contributors box */
+
+.welcome {
+  max-width: var(--content-width);
+  margin: var(--gap) auto;
+}
+
+.welcome input,
+[class^="level"] {
+  display: none;
+}
+
+.welcome #root:checked ~ .level-1 {
+  display: grid;
+}
+
+.welcome .panel {
+  display: none;
+  margin-top: calc(var(--gap) * 0.5);
+  padding: 0 calc(var(--gap) * 0.5);
+}
+
+.welcome #root:checked ~ .level-1,
+.welcome input:checked + label + .panel > [class^="level"] {
+  display: block;
+}
+
+.welcome input:checked + label + .panel {
+  display: block;
+  margin: var(--gap) auto;
+}
+
+.welcome .button {
+  display: block;
+  margin: var(--gap) 0;
+}
+
+.welcome label.button::after {
+  content: "›";
+  float: right;
+  opacity: 0.5;
+}
+
+.welcome .other {
+  margin-top: calc(var(--gap) * 2);
+  padding-top: var(--gap);
+  border-top: var(--border);
+}
+
+
+/* Calendar in Community */
+
+.calendar {
+  margin: var(--gap) auto;
+  width: var(--width);
+  height: calc(var(--width) * 0.5);
+  border: none;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  z-index: 3;
+}
+
+
+/* Addons list */
+
+.addons-sort {
+  width: var(--content-width);
+  margin: var(--gap) auto;
+  display: flex;
+  flex-direction: row;
+  gap: var(--gap);
+  justify-content: center;
+  z-index: 1;
+}
+
+.addons-sort .button .label-asc,
+.addons-sort .button .label-desc {
+  display: none;
+}
+
+.addons-sort button[data-order="asc"] .label-asc,
+.addons-sort button[data-order="desc"] .label-desc {
+  display: inline;
+}
+
+.addons-sort svg {
+  vertical-align: calc(var(--gap) * -0.125);
+}
+
+.addon-icon {
+  display: grid;
+  place-items: center;
+  width: var(--xxl);
+  height: var(--xxl);
+  border-radius: 50%;
+  background: var(--theme);
+}
+
+.addon-icon img {
+  width: calc(var(--xxl) * 0.75);
+  height: auto;
+  max-height: calc(var(--xxl) * 0.75);
+  object-fit: contain;
+  text-align: center;
+  border-radius: 10%;
+}
+
+.addon-title {
+  margin: 0;
+}
+
+
+/* Telemetry charts */
+
+.telemetry {
+  width: var(--content-width);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--gap) * 2);
+  z-index: 1;
+}
+
+.chart {
+  background: var(--muted);
+  border-radius: var(--radius);
+  padding: var(--gap);
+  box-shadow: var(--shadow);
+}
+
+.chart-title {
+  font-size: var(--l);
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.chart-row {
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.chart-label {
+  text-align: start;
+  width: 100%;
+  margin-bottom: calc(var(--gap) * 0.5);;
+}
+
+.chart-label span:first-of-type {
+  font-weight: bold;
+}
+
+.chart-label span:first-of-type::after {
+  content: " · ";
+}
+
+.chart-track {
+  display: grid;
+  align-items: center;
+}
+
+.chart-track > * {
+  grid-area: 1 / 1;
+  height: var(--s);
+  border-radius: var(--radius);
+}
+
+.chart-segment {
+  width: 100%;
+  background:
+    linear-gradient(
+      var(--angle),
+      color-mix(in srgb, var(--tone) 25%, var(--entry) 50%),
+      color-mix(in srgb, var(--tone) 50%, var(--entry) 25%)
+  );
+}
+
+.chart-bar {
+  width: var(--percent);
+  min-width: var(--s);
+  background:
+    linear-gradient(
+      var(--angle),
+      color-mix(in srgb, var(--color), var(--entry) 25%),
+      var(--color)
+  );
+}
+
+.chart-row:hover .chart-segment {
+  background: color-mix(in srgb, var(--tone) 50%, var(--color) 25%);
+}
+
+.chart-row:hover .chart-bar {
+  outline: var(--line) solid var(--color);
+  background: var(--color);
+}
+
+
+/* Donate box */
+
+#donation-form {
+  width: var(--content-width);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--gap) * 0.5);
+  padding: var(--gap);
+  align-items: center;
+  background: var(--muted);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  z-index: 3;
+}
+
+#donation-type {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  border: none;
+  padding: 0;
+}
+
+#donation-amount {
+  width: 100%;
+  display: grid;
+  grid-template-rows: repeat(2, 1fr);
+  border: none;
+  padding: 0;
+}
+
+#donation-type input,
+#donation-amount input:not([type="number"]),
+#donate-checkbox {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+}
+
+:is(
+  #donation-type input,
+  #donation-amount input:not([type="number"]),
+  #donate-checkbox
+):focus-visible + label {
+  outline: var(--outline-focus);
+}
+
+#donation-amount .tiers {
+  display: none;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+#donation-amount .custom {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+#donation-type label,
+.tiers label:not([for="custom-amount"]) {
+  flex: 1 1 0;
+}
+
+[id^="message-monthly-"],
+#donation-form:has(#once:checked) :is(#corporate-sponsor, #message-monthly-default),
+#donation-form:has(#once:checked):has(#donate-checkbox:disabled) #message-once-choice,
+#donation-form:has(#once:checked):not(:has(#donate-checkbox:disabled)) #message-once-default,
+#donation-form:has(#once:checked):has(#custom-amount:invalid) :is(#message-once-default, #message-once-choice),
+#message-once-error,
+#donation-form:has(#monthly:checked) :is(#custom-amount-box, #message-once-default, #message-once-choice) {
+  display: none;
+}
+
+#donation-form:has(#monthly:checked):not(:has([id^="monthly-"]:checked)) #message-monthly-default {
+  display: block;
+}
+
+#donation-form:has(#once:checked):has(#custom-amount:invalid) #message-once-error {
+  display: block;
+  background: crimson;
+}
+
+#custom-amount:not(:valid) {
+  color: crimson;
+}
+
+#donation-form:has(#once:checked) .once,
+#donation-form:has(#monthly:checked) .monthly {
+  display: grid;
+}
+
+#custom-amount-box {
+  grid-column: span 3;
+  display: flex;
+  justify-content: center;
+  padding: calc(var(--gap) * 0.25);
+}
+
+#custom-amount-box:focus-within {
+  outline: var(--outline-focus);
+}
+
+#corporate-sponsor {
+  grid-column: span 3;
+  display: flex;
+  justify-content: center;
+}
+
+#custom-amount-box label {
+  margin: auto var(--gap);
+}
+
+#custom-amount {
+  width: 100%;
+  padding: calc(var(--gap) * 0.25);
+  color: var(--secondary);
+  text-align: center;
+  outline: transparent;
+}
+
+#currency-toggle {
+  grid-column: span 1;
+  border: none;
+}
+
+#donation-payment {
+  width: 100%;
+  display: flex;
+  border: none;
+  padding: 0;
+}
+
+[for="donate-checkbox"], [id^="payment-"] {
+  width: 100%;
+  margin: calc(var(--gap) * 0.5);
+  padding: var(--padding);
+  font-weight: bold;
+  border: none;
+}
+
+[for="donate-checkbox"]:not([id$="default"]), [id^="payment-"] {
+  color: var(--secondary);
+  background: var(--theme);
+  outline: var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+:is([for="donate-checkbox"]:not([id$="default"]), [id^="payment-"]):hover:not(:disabled) {
+  color: var(--primary);
+  outline: var(--outline-hover);
+  filter: var(--filter);
+}
+
+#donation-payment:has(#donate-checkbox:checked) [id^="payment-"] {
+  display: block;
+}
+
+#donation-payment:has(#donate-checkbox:not(:disabled):checked) [for="donate-checkbox"],
+#donation-payment:has(:is(#donate-checkbox:not(:checked), #donate-checkbox:disabled)) [id^="payment-"],
+#donation-form:has(#monthly:checked) [id="payment-stripe"] {
+  display: none;
+}
+
+#donation-popover {
+  position: relative;
+  padding: calc(var(--gap) * 2);
+  color: var(--secondary);
+  background: var(--entry);
+  border: none;
+  border-radius: var(--radius);
+}
+
+#donation-popover::backdrop {
+  background: var(--backdrop);
+}
+
+#donation-popover .close {
+  position: absolute;
+  top: var(--gap);
+  right: var(--gap);
+}
+
+#donation-popover .close svg {
+  width: 2rem;
+  height: 2rem;
+  color: var(--tertiary);
+  background: var(--backdrop);
+  border-radius: calc(var(--radius) * 10);
+  padding: calc(var(--gap) * 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+/* Sponsors list */
+
+.sponsors {
+  padding-bottom: calc(var(--gap) * 2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  background: var(--section);
+}
+
+.sponsors-tier {
+  width: var(--width);
+  margin: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap);
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+}
+
+.sponsor-entry {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  justify-content: center;
+  padding: var(--padding);
+  background: var(--entry);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+
+a.sponsor-entry:hover {
+  filter: var(--filter);
+}
+
+.sponsor-entry svg,
+.sponsor-logo {
+  height: var(--xxl);
+  width: auto;
+  max-width: calc(var(--xxl) * 2.5);
+  color: var(--secondary);
+  border-radius: 0;
+}
+
+
+/* Custom classes. */
+
+.donate {
+  background: linear-gradient(
+    var(--angle),
+    color-mix(in srgb, var(--accent) 25%, var(--header) 75%),
+    color-mix(in srgb, var(--accent-hover) 50%, var(--header) 50%)
+  );
+  outline: transparent;
+}
+
+.donate.active:focus-visible {
+  outline: var(--outline-focus);
+}
+
+
+/* Custom content classes */
+
+.section {
+  background: var(--section);
+}
+
+.gradient {
+  background: linear-gradient(
+    var(--entry),
+    var(--tone)
+  );
+}
+
+.dots {
+  background: radial-gradient(
+    var(--muted) var(--line),
+    transparent var(--line))
+    0 0 / calc(var(--gap) * 0.5) calc(var(--gap) * 0.5
+  );
+}
+
+.grid {
+  background:
+    repeating-linear-gradient(
+      90deg,
+      var(--muted) 0 var(--line),
+      transparent 0 calc(var(--gap) * 0.5)
+    ),
+    repeating-linear-gradient(
+      180deg,
+      var(--muted) 0 var(--line),
+      transparent 0 calc(var(--gap) * 0.5)
+    );
+}
+
+:not(h1, h2, h3, h4, h5, h6).accent {
+  background: linear-gradient(
+    var(--gradient-angle),
+    color-mix(in srgb, var(--accent) 25%, var(--header) 75%),
+    color-mix(in srgb, var(--accent-hover) 50%, var(--header) 50%)
+  );
+}
+
+:is(h1, h2, h3).accent, .accent > :is(h1, h2, h3) {
+  background: linear-gradient(
+    var(--angle),
+    var(--accent-hover),
+    var(--accent)
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+.pastel1 { --hue: 15; } /* Peach */
+.pastel2 { --hue: 60; } /* Apricot */
+.pastel3 { --hue: 120; } /* Sage */
+.pastel4 { --hue: 180; } /* Water */
+.pastel5 { --hue: 270; } /* Lavender */
+.pastel6 { --hue: 330; } /* Rose */
+
+[class*="pastel"] {
+  --bg1: oklch(90% 7.5% var(--hue));
+  --bg2: oklch(95% 2.5% var(--hue));
+  --bg3: oklch(85% 5% var(--hue));
+  --fg1: oklch(40% 30% var(--hue));
+  --fg2: oklch(60% 15% var(--hue));
+  background: linear-gradient(
+    var(--angle),
+    var(--bg1),
+    var(--bg2),
+    var(--bg3)
+  );
+}
+
+.dark [class*="pastel"] {
+  --bg1: oklch(20% 7.5% var(--hue));
+  --bg2: oklch(15% 2.5% var(--hue));
+  --bg3: oklch(25% 5% var(--hue));
+  --fg1: oklch(60% 30% var(--hue));
+  --fg2: oklch(80% 15% var(--hue));
+}
+
+[class*="pastel"] > :is(h1, h2, h3),
+[class*="pastel"]:is(h1, h2, h3) {
+  background: linear-gradient(
+    var(--angle),
+    var(--fg1),
+    var(--fg2)
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.group-center {
+  padding: var(--gap);
+  text-align: center;
+  background: var(--muted);
+  border-radius: var(--radius);
+}

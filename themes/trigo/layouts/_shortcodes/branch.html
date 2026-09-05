@@ -1,0 +1,69 @@
+{{- /*
+SPDX-License-Identifier: MIT
+SPDX-FileCopyrightText: 2026 FreeCAD
+SPDX-FileNotice: Part of the Trigo theme for Hugo.
+*/ -}}
+
+{{- /* Branch shortcode:
+
+  @param {string} [label] – Optional label for tree branch.
+  @param {string} [icon=folder] – Icon for tree branch: folder, document, container, group, part, assembly, arrow, branch, fork, pr, or versions.
+  @param {string} [state=open] – Initial open or closed state.
+  @param {string} [css_class] – Optional CSS class for tree branch.
+
+  @return {HTML} Render collapsible tree branch with nested children (e.g. branches or leaves).
+
+  @example {{< branch label="src" state="open" >}}...{{< /branch >}}
+  @example {{< branch "src" "folder" "closed" >}}...{{< /branch >}}
+
+*/ -}}
+
+
+{{- $label := cond (.IsNamedParams) (.Get "label") (.Get 0) | plainify -}}
+{{- $icon := cond (.IsNamedParams) (.Get "icon") (.Get 1) | lower | default "folder" -}}
+{{- $state := cond (.IsNamedParams) (.Get "state") (.Get 2) | lower | default "open" -}}
+{{- $class := cond (.IsNamedParams) (.Get "css_class") (.Get 3) -}}
+
+{{- $valid := slice "folder" "document" "container" "group" "part" "assembly" "arrow" "branch" "fork" "merge" -}}
+{{- if not (in $valid $icon) -}}
+  {{- $icon = "folder" -}}
+{{- end -}}
+{{- $state = cond (in (slice "open" "closed") $state) $state "open" -}}
+
+{{- $classes := slice "branch" -}}
+{{- with $class -}}
+  {{- $classes = $classes | append . -}}
+{{- end -}}
+
+{{- $id := printf "%s-%03d-%s-%03d-%s" .Parent.Name .Parent.Ordinal .Name .Ordinal (anchorize $label) -}}
+
+{{- $icon_open := printf "%s_open" $icon -}}
+{{- $icon_closed := printf "%s_closed" $icon -}}
+
+{{- $is_root := not .Parent -}}
+{{- if $is_root -}}<ul class="tree">{{- end -}}
+
+<li>
+  <input
+    type="checkbox"
+    id="{{ $id }}"
+    hidden
+    {{- if eq $state "open" }} checked {{ end -}}>
+
+  <label
+    for="{{ $id }}"
+    class="{{ delimit $classes " " }}">
+
+    <span class="open">{{ partialCached "utils/icon.html" $icon_open $icon_open }}</span>
+
+    <span class="closed">{{ partialCached "utils/icon.html" $icon_closed $icon_closed }}</span>
+
+    {{- with $label -}}{{ . }}{{- end -}}
+  </label>
+
+  {{- with .InnerDeindent -}}
+    <ul>{{ . }}</ul>
+  {{- end -}}
+</li>
+
+{{- if $is_root -}}</ul>{{- end -}}

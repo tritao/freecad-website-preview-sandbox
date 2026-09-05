@@ -1,0 +1,33 @@
+{{- /*
+SPDX-License-Identifier: MIT
+SPDX-FileCopyrightText: 2026 FreeCAD
+SPDX-FileNotice: Part of the Trigo theme for Hugo.
+*/ -}}
+
+{{- /* Steps shortcode:
+
+  @param {inner} content – Steps content.
+
+  @return {HTML} Render steps container and content with numbered bullets.
+
+  @example {{< steps >}}
+    ## Step 1
+
+    This is the first step.
+  {{< /steps >}}
+
+  Note: `{class="no-step"}` prevent a heading from being counted as a step.
+  Note: only intended for Markdown content. HTML other shortcodes content may not render as expected.
+
+*/ -}}
+
+
+{{- with .InnerDeindent -}}
+
+  <div class="steps">
+    {{- . | strings.TrimSpace | $.Page.RenderString (dict "display" "block") -}}
+  </div>
+
+{{- else -}}
+  {{- warnf "%q shortcode: missing required 'inner' content on %s" .Name .Position -}}
+{{- end -}}

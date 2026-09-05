@@ -1,0 +1,669 @@
+/*
+SPDX-License-Identifier: MIT
+SPDX-FileCopyrightText: 2026 FreeCAD
+SPDX-FileNotice: Part of the Trigo theme for Hugo.
+*/
+
+/* Shortcodes stylesheet. */
+
+
+/* Git shortcode. */
+
+.git {
+  background: var(--entry);
+  padding-top: calc(var(--gap) * 0.25);
+  border-radius: var(--radius);
+}
+
+.git svg.icon:not(.external) {
+  vertical-align: calc(var(--gap) * -0.125);
+}
+
+
+/* Tabs shortcodes */
+
+.tabs {
+  margin: var(--gap) auto;
+  background: var(--entry);
+  border-radius: var(--radius);
+  display: flex;
+  flex-wrap: wrap;
+  overflow: hidden;
+}
+
+.tabs label {
+  display: inline-block;
+  padding: var(--padding);
+  border-radius: var(--radius) var(--radius) 0 0;
+  cursor: pointer;
+}
+
+.tabs :is(input:checked, label):hover {
+  background: var(--accent-hover);
+}
+
+.tabs input {
+  display: none;
+}
+
+.tab-content {
+  order: 999; /* Move content blocks to end of flex container*/
+  width: 100%;
+  padding: var(--gap);
+  display: none;
+  border-top: var(--line) solid var(--tone);
+}
+
+.tabs input:checked + label {
+  background: var(--tone);
+}
+
+.tabs input:checked + label + .tab-content {
+  display: block;
+}
+
+
+/* Tree, branch and leaf shortcode. */
+
+.tree {
+  padding: var(--gap);
+  border-radius: var(--radius);
+  text-align: center;
+  background: var(--entry);
+}
+
+.tree-label, li:has(.branch), li:has(.leaf) {
+  list-style: none;
+}
+
+.branch .open,
+input:checked + .branch .closed,
+input:not(:checked) + .branch + ul {
+  display: none;
+}
+
+input:checked + .branch :is(+ ul, .branch .open) {
+  display: block;
+}
+
+.branch + ul {
+  transition: var(--transition);
+}
+
+:is(.branch, .leaf) svg {
+  vertical-align: -0.25rem;
+}
+
+.branch, .leaf {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--gap) * 0.25);
+  user-select: none;
+}
+
+.branch {
+  font-weight: bold;
+  cursor: pointer;
+}
+
+
+/* Steps shortcode. */
+
+.steps {
+  margin: calc(var(--gap) * 2) auto;
+  counter-reset: step;
+  border-left: var(--border);
+  margin-left: var(--gap);
+}
+
+.steps :is(h1, h2, h3, h4, h5, h6) {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--gap);
+}
+
+.steps > :not(:where(h2, h3, h4, h5, h6):not(.no-step)) {
+  margin-left: 3rem;
+}
+
+.steps :where(h2, h3, h4, h5, h6):not(.no-step)::before {
+  counter-increment: step;
+  content: counter(step);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 2rem;
+  height: 2rem;
+  font-size: var(--m);
+  color: var(--theme);
+  background: var(--tone);
+  outline: var(--theme) solid var(--gap);
+  border-radius: 50%;
+  transform: translateX(-1rem);
+  flex-shrink: 0;
+}
+
+
+/* Images carousel shortcode. */
+
+.carousel {
+  position: relative;
+  margin: var(--gap) 0;
+}
+
+.carousel ul {
+  position: relative;
+  overflow: auto;
+  display: flex;
+  flex-wrap: nowrap;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  background: var(--tone);
+  scrollbar-width: none;
+  margin: 0;
+  padding: 0;
+  cursor: ew-resize;
+  user-select: none;
+  border-radius: var(--radius);
+}
+
+.carousel ul.grabbing {
+  cursor: grabbing;
+  scroll-snap-type: none;
+}
+
+/* Hide scrollbar for Chrome, Safari, Opera, etc. */
+.carousel ul::-webkit-scrollbar {
+  display: none;
+}
+
+.carousel ul li {
+  position: relative;
+  margin: 0;
+  min-width: 100%;
+  list-style: none;
+  scroll-snap-align: start;
+  pointer-events: auto;
+}
+
+.carousel ul li > img {
+  border-radius: 0;
+}
+
+.carousel ol {
+  position: absolute;
+  bottom: var(--gap);
+  display: flex;
+  justify-content: center;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  margin: 0;
+}
+
+.carousel ol li {
+  list-style: none;
+  padding: 0 calc(var(--gap) * 0.5);
+}
+
+.carousel ol li a {
+  display: block;
+  height: var(--m);
+  width: var(--m);
+  border: var(--line) solid var(--entry);
+  border-radius: 100%;
+  transition: var(--transition);
+}
+
+.carousel .selected a {
+  background: var(--entry);
+  transform: scale(1.5);
+}
+
+.carousel ol li a:hover {
+  border: var(--line) solid var(--accent-hover);
+  background: var(--accent-hover);
+}
+
+.carousel .prev, .carousel .next {
+  position: absolute;
+  top: 50%;
+  left: var(--gap);
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: center;
+  height: 3.5rem;
+  width: 3.5rem;
+  padding: var(--gap);
+  opacity: 0;
+  background: var(--backdrop);
+  border-radius: 50%;
+  pointer-events: auto;
+  user-select: none;
+  cursor: pointer;
+  transition: var(--transition);
+  z-index: 4;
+}
+
+.carousel .next {
+  left: auto;
+  right: var(--gap);
+}
+
+.carousel:hover .prev,
+.carousel:hover .next {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.carousel :is(.prev, .next):hover {
+  background: var(--accent-hover);
+}
+
+.carousel :is(.prev, .next) svg {
+  color: var(--secondary);
+  height: var(--l);
+  width: var(--l);
+}
+
+
+/* Compare shortcode. */
+
+.compare {
+  position: relative;
+  margin: var(--gap) 0;
+  width: 100%;
+  max-width: var(--width);
+  cursor: ew-resize;
+  user-select: none;
+  touch-action: none;
+}
+
+.compare .before {
+  position: relative;
+  width: 100%;
+  height: auto;
+  max-height: var(--content-width);
+  z-index: 2;
+  display: block;
+  border-radius: var(--radius);
+}
+
+.compare .after {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+  max-height: var(--content-width);
+  z-index: 3;
+  overflow: visible;
+  clip-path: inset(0 0 0 50%);
+  display: block;
+  border-radius: var(--radius);
+}
+
+.compare .divider {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: var(--line);
+  background: var(--theme);
+  z-index: 4;
+  pointer-events: none;
+}
+
+.compare .handle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 4;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--theme);
+  touch-action: none;
+  pointer-events: none;
+  transition: transform 0.2s ease;
+}
+
+.compare:hover .handle {
+  transform: translate(-50%, -50%) scale(1.5);
+}
+
+.compare:has(.handle.active) {
+  cursor: grabbing;
+}
+
+.compare .handle svg {
+  height: var(--l);
+  width: var(--l);
+  pointer-events: none;
+}
+
+
+/* Canvas shortcode. */
+
+.canvas {
+  position: relative;
+  display: block;
+}
+
+.canvas canvas {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  border-radius: var(--radius);
+  cursor: grab;
+  touch-action: pan-y;
+}
+
+.canvas.grabbing canvas {
+  cursor: grabbing;
+}
+
+.canvas .controls {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: var(--gap);
+  align-items: center;
+  background: var(--backdrop);
+  padding: var(--padding);
+  border-radius: var(--radius);
+  opacity: 0;
+  pointer-events: none;
+  transition: var(--transition);
+}
+
+.canvas .controls :is(.play, .pause) {
+  color: var(--secondary);
+}
+
+.canvas .controls :is(.play, .pause):hover {
+  color: var(--accent-hover);
+}
+
+.canvas .controls svg {
+  vertical-align: calc(var(--gap) * -0.125);
+}
+
+.canvas:hover .controls {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.canvas .controls .pause,
+.canvas.playing .controls .play {
+  display: none;
+}
+
+.canvas.playing .controls .pause {
+  display: inline-block;
+}
+
+
+/* Block shortcode. */
+
+.block-shortcode {
+  padding: calc(var(--gap) * 2);
+}
+
+.block-title {
+  text-align: center;
+  max-width: var(--width);
+  color: var(--secondary);
+}
+
+.block-content {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--gap);
+  margin: auto;
+  max-width: var(--width);
+  border-radius: var(--radius);
+}
+
+.block-content > * {
+  max-width: calc((var(--width) * 0.5) - (var(--gap) * 2));
+  flex: 1 auto;
+  margin: auto;
+}
+
+.card-shortcode {
+  margin: var(--gap) auto;
+}
+
+.card-shortcode > * {
+  margin: auto;
+}
+
+
+/* Group shortcode. */
+
+.group-shortcode :is(h1, h2, h3) {
+  text-align: center;
+}
+
+
+/* Button shortcode. */
+
+.button-shortcode {
+  margin: var(--gap) auto;
+  text-align: center;
+}
+
+.button-shortcode svg.icon:not(.external) {
+  vertical-align: calc(var(--gap) * -0.125);
+}
+
+
+/* PDF shortcode. */
+
+.pdf iframe {
+  width: 100%;
+  min-height: 50vh;
+  max-width: var(--content-width);
+}
+
+
+/* Toot shortcode. */
+
+.toot-blockquote {
+  line-height: 1.5rem;
+  border: none;
+  border-radius: var(--radius);
+}
+
+.toot-header {
+  display: flex;
+  margin: var(--gap) 0;
+  gap: var(--gap);
+}
+
+.toot-profile {
+  flex-shrink: 0;
+}
+
+.toot-profile img {
+  border-radius: calc(var(--radius) * 10);
+  width: 3rem;
+  height: auto;
+  background: var(--theme);
+}
+
+.toot-author {
+  display: flex;
+  flex-direction: column;
+}
+
+.toot-author-name {
+  font-weight: bold;
+}
+
+.toot-footer {
+  margin-top: var(--gap);
+  display: flex;
+  align-items: center;
+}
+
+[class^='toot-img-grid'],
+.toot-video-wrapper,
+.toot-media-video {
+  margin-top: var(--gap);
+  border-radius: var(--radius);
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  grid-gap: calc(var(--gap) * 0.5);
+}
+
+.toot-media-img {
+  width: 100%;
+  max-height: calc(var(--width) * 0.25);
+  object-fit: cover;
+}
+
+.toot-video-wrapper {
+  border-radius: var(--radius);
+  display: block;
+  position: relative;
+}
+
+.toot-img-grid-3 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.toot-img-grid-3 img {
+  height: auto;
+}
+
+.toot-img-grid-2,
+.toot-img-grid-4 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+:is(.toot-img-grid-2, .toot-img-grid-4) img {
+  height: calc(var(--width) * 0.25);
+}
+
+.toot-sens-blur {
+  filter: blur(5rem);
+  position: relative;
+}
+
+.toot-sens-blur-no {
+  filter: none !important;
+  z-index: 9999 !important;
+  position: relative;
+}
+
+[class^='toot-img-grid'] {
+  position: relative;
+}
+
+.blur-text {
+  position: absolute;
+  font-weight: bold;
+  text-shadow: 0.125rem 0.125rem 0.1rem black;
+  width: 100%;
+  top: 40%;
+  color: var(--entry);
+  text-align: center;
+  font-size: 1.5rem;
+  line-height: 1.5rem;
+}
+
+.blur-text-no {
+  display: none !important;
+}
+
+.toot-poll-wrapper {
+  margin-top: 1rem;
+  line-height: 1rem;
+}
+
+.toot-poll-meter {
+  margin: 1rem auto;
+  position: relative;
+}
+
+.toot-poll-count {
+  position: absolute;
+  left: 2.5%;
+  top: 0.3rem;
+}
+
+.toot-poll-title {
+  position: absolute;
+  left: 12.5%;
+  top: 0.3rem;
+}
+
+.toot-poll-total {
+  margin-top: 0.5rem;
+}
+
+.toot-reply-to {
+  margin-top: 0;
+  padding-top: 0;
+  line-height: 1.5rem;
+}
+
+.toot-card {
+  margin: var(--gap);
+  position: relative;
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: var(--secondary);
+  background: var(--theme);
+}
+
+.toot-card:hover {
+  color: var(--accent-hover);
+}
+
+.toot-card-image img {
+  width: 100%;
+  max-height: calc((var(--width) * 0.25) + 2rem);
+  border-radius: var(--radius);
+}
+
+.toot-card-content {
+  padding: var(--gap);
+}
+
+.toot-card-title {
+  margin-top: 0;
+  font-weight: bold;
+}
+
+
+/* Marker shortcode. */
+
+.marker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap);
+  margin-block-end: var(--gap);
+  color: var(--accent);
+}
+
+.marker span {
+  padding: calc(var(--gap) * 0.5);
+  background: color-mix(in srgb, var(--accent) 25%, var(--header));
+  border-radius: var(--radius);
+}
+
+.marker svg {
+  vertical-align: calc(var(--gap) * -0.125);
+}

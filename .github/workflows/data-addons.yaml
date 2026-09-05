@@ -1,0 +1,67 @@
+name: Update Addons data
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 20 * * 0" # Weekly on Sunday 20:00 UTC
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: addons
+  cancel-in-progress: false
+
+jobs:
+  addons:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Restore Addons cache
+        id: cache-restore
+        uses: actions/cache/restore@v6
+        with:
+          path: .cache/addons
+          key: addons-${{ github.ref_name }}
+          restore-keys: |
+            addons-${{ github.ref_name }}-
+            addons-
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+
+      - name: Install dependencies
+        run: |
+          pip install requests
+
+      - name: Run Addons script
+        run: |
+          python tools/workflows/addons.py
+
+      - name: Get date
+        id: date
+        run: |
+          echo "date=$(date -u +'%Y-%m-%d')" >> "$GITHUB_OUTPUT"
+
+      - name: Create Pull Request with updated Addons data
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          add-paths: |
+            data/addons.json
+          commit-message: "Action: Update Addons data - ${{ steps.date.outputs.date }}"
+          title: "Action: Update Addons data - ${{ steps.date.outputs.date }}"
+          body: |
+            Automated update of Addons data.
+          branch: automation/update-addons-${{ steps.date.outputs.date }}
+          delete-branch: true
+
+      - name: Save Addons cache
+        uses: actions/cache/save@v6
+        with:
+          path: .cache/addons
+          key: addons-${{ github.ref_name }}

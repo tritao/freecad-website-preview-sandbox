@@ -1,0 +1,59 @@
+{{- /*
+SPDX-License-Identifier: MIT
+SPDX-FileCopyrightText: 2026 FreeCAD
+SPDX-FileNotice: Part of the Trigo theme for Hugo.
+*/ -}}
+
+{{- /* Single template:
+
+  - Set hero with title, description, optional cards, metadata and cover image.
+  - Set Content and Pagination.
+*/ -}}
+
+
+{{- define "main" -}}
+
+  {{- $key := partialCached "utils/cache_key.html" . . -}}
+
+  <section class="hero">
+
+    <h2 class="title{{ with .Params.title_class }} {{ . }}{{ end -}}">
+      {{- .Title -}}
+
+      {{- if .Draft -}}
+        <sup><span>[{{- i18n "draft" | default "Draft" -}}]</span></sup>
+      {{- end -}}
+    </h1>
+
+    {{- with .Description  -}}
+      <h3 class="description{{ with $.Params.description_class }} {{ . }}{{ end -}}">
+        {{- . -}}
+      </h3>
+    {{- end -}}
+
+    {{- /* Get article metadata. */ -}}
+    {{- partialCached "main/metadata.html" . $key -}}
+
+    {{- /* Get article cover image. */ -}}
+    {{- partialCached "main/cover.html" . $key -}}
+
+  </section>
+
+  {{- /* Get Table Of Contents. */ -}}
+  {{- if .Params.toc -}}
+    {{- partial "main/table_contents.html" . -}}
+  {{- end -}}
+
+  {{- /* Get page content. */ -}}
+  {{- partial "main/content.html" . -}}
+
+  {{/* Dynamically include custom content partials. */}}
+  {{- partial "utils/custom_partials.html" (dict "page" . "where" "content" "auto" true) -}}
+
+  {{- /* Get pagination to previous and next pages. */ -}}
+  {{- if site.Params.show_pagination -}}
+    {{- partial "main/pagination.html" . -}}
+  {{- end -}}
+
+{{- end -}}
+{{- /* End main. */ -}}

@@ -1,0 +1,105 @@
+{{- /*
+SPDX-License-Identifier: MIT
+SPDX-FileCopyrightText: 2026 FreeCAD
+SPDX-FileNotice: Part of the Trigo theme for Hugo.
+*/ -}}
+
+{{- /* Hero cover image:
+
+  - Support local and remote cover resources with section and category fallbacks.
+  - Get responsive images set if processable.
+  - Add optional cover caption.
+
+  @returns {template.HTML}
+*/ -}}
+
+
+{{- $page := .Page -}}
+{{- $cover := "" -}}
+{{- $caption := "" -}}
+
+{{- with $page.Params.cover -}}
+  {{- with .image -}}
+    {{- $url := urls.Parse . -}}
+
+    {{- /* Remote resource. */ -}}
+    {{- if and
+      (hasPrefix $url.Scheme "http")
+      (site.Params.allow_remote | default true)
+    -}}
+
+      {{- with try (
+        resources.GetRemote
+        .
+        (dict "timeout" (site.Params.timeout | default "5s"))
+      ) -}}
+
+        {{- with .Err -}}
+          {{- warnf "Failed to fetch remote cover %q in page %q: %s" $page.Params.cover.image $page.LinkTitle . -}}
+
+        {{- else with .Value -}}
+          {{- $cover = . -}}
+        {{- end -}}
+      {{- end -}}
+
+    {{- /* Local (bundled/static) resource. */ -}}
+    {{- else -}}
+      {{- $cover = ($page.Resources.ByType "image").Get . | default (resources.Get .) -}}
+    {{- end -}}
+  {{- end -}}
+
+  {{- $caption = .caption | plainify -}}
+{{- end -}}
+
+{{- /* Cover fallbacks. */ -}}
+{{- if and (eq .BundleType "single") (not $cover) -}}
+  {{- $first_section := .FirstSection -}}
+  {{- $categories := .Params.categories -}}
+  {{- $category := cond (reflect.IsSlice $categories)
+    (index $categories 0)
+    $categories
+    | lower
+  -}}
+
+  {{- if and $first_section $category -}}
+    {{- $cover = ($first_section.Resources.ByType "image").GetMatch (printf "*%s*" $category) -}}
+    {{- $page = $first_section -}}
+  {{- end -}}
+
+  {{- if and (not $cover) $first_section -}}
+    {{- with $first_section.Params.cover.image -}}
+      {{- $cover = ($first_section.Resources.ByType "image").GetMatch (printf "*%s*" .) -}}
+      {{- $page = $first_section -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- with $cover -}}
+  {{- $key := partialCached "utils/cache_key.html" $page $page -}}
+
+  <figure class="cover">
+
+    {{- if reflect.IsImageResource . -}}
+
+      {{- partialCached "utils/process_image.html" (dict
+        "image" .
+        "alt" ""
+        "title" $caption
+        "attributes" dict
+        ) $key -}}
+
+    {{- else -}}
+      {{- warnf "Cover MediaType not supported for %q in page %q" $cover $page.LinkTitle -}}
+    {{- end -}}
+
+    {{- with $caption -}}
+      <figcaption>
+        <div class="internal-tooltip">
+          {{- partialCached "utils/icon.html" "important" "important" -}}
+          <span class="tooltip">{{ . | $.Page.RenderString }}</span>
+        </div>
+      </figcaption>
+    {{- end -}}
+
+  </figure>
+{{- end -}}

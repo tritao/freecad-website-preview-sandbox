@@ -1,0 +1,134 @@
+{{- /*
+SPDX-License-Identifier: MIT
+SPDX-FileCopyrightText: 2026 FreeCAD
+SPDX-FileNotice: Part of the Trigo theme for Hugo.
+*/ -}}
+
+{{- /* List template:
+
+  - Set hero with custom partials.
+  - Set main content with custom partials.
+  - List RegularPages or sub-Sections for current Section.
+*/ -}}
+
+
+{{- define "main" -}}
+
+  {{/* Hero cards on top-level sections. */}}
+  {{- $hero_cards := slice -}}
+  {{- if and .IsSection .Parent.IsHome -}}
+    {{- range site.Menus.footer -}}
+      {{- if and (gt (len .Children) 1) (eq .Identifier $.Section) -}}
+        {{- range .Children -}}
+          {{- with .Page -}}
+            {{- $hero_cards = $hero_cards | append . -}}
+          {{- end -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+
+  {{- $key := partialCached "utils/cache_key.html" . . -}}
+
+  <section class="hero">
+
+    <h1 class="title{{ with .Params.title_class }} {{ . }}{{ end -}}">
+      {{- .Title -}}
+
+      {{- if .Draft -}}
+        <sup><span>[{{- i18n "draft" | default "Draft" -}}]</span></sup>
+      {{- end -}}
+    </h1>
+
+    {{- with .Description  -}}
+      <h3 class="description{{ with $.Params.description_class }} {{ . }}{{ end -}}">
+        {{- . -}}
+      </h3>
+    {{- end -}}
+
+    {{- if and site.Params.enable_debug (not hugo.IsProduction) -}}
+      {{- with .Page.Menus.main -}}
+        <h2 style="color: crimson; z-index:2;">Weight: {{ .Weight }}</h2>
+      {{- end -}}
+    {{- end -}}
+
+    {{/* Dynamically include custom hero partials. */}}
+    {{- partial "utils/custom_partials.html" (dict "page" . "where" "hero" "auto" true) -}}
+
+    {{- if and
+      (eq .Section (index site.MainSections 0))
+      (or site.Taxonomies site.Menus.footer)
+    -}}
+      <div class="buttons">
+
+        {{- $taxonomy_map := partialCached "utils/taxonomy_map.html" . "taxonomy_map" -}}
+        {{- range $key, $value := $taxonomy_map -}}
+
+          {{- if and (hasSuffix $key "_data") (gt $value.count 0) -}}
+            {{- $link_title := lower $value.link_title -}}
+            {{- $title := i18n $link_title | default $link_title -}}
+            <a
+              href="{{ $value.rel_permalink }}"
+              class="button">
+
+              {{- partialCached "utils/icon.html" $link_title $link_title -}}
+              {{- printf "%s (%d)" (title $title) $value.count -}}
+            </a>
+          {{- end -}}
+        {{- end -}}
+
+        {{- range site.Menus.footer -}}
+          {{- if and .HasChildren (eq .Identifier $.Section) -}}
+            {{- range .Children -}}
+              <a
+                href="{{ .URL }}"
+                class="button">
+                {{- .Name -}}
+              </a>
+            {{- end -}}
+          {{- end -}}
+        {{- end -}}
+      </div>
+    {{- end -}}
+
+    {{- with $hero_cards -}}
+      <div class="card-list wide">
+        <div class="cards">
+          {{- range . -}}
+            {{- $card_key := partialCached "utils/cache_key.html" . . -}}
+            {{- partialCached "main/card.html" . $card_key -}}
+          {{- end -}}
+        </div>
+      </div>
+    {{- end -}}
+
+    {{- partialCached "main/cover.html" . $key -}}
+  </section>
+
+  {{/* Dynamically include custom content partials. */}}
+
+  {{- /* Get Table Of Contents. */ -}}
+  {{- if and .Params.toc .Content (not .Pages) -}}
+    {{- partial "main/table_contents.html" . -}}
+  {{- end -}}
+
+  {{- partial "utils/custom_partials.html" (dict "page" . "where" "content") -}}
+
+  {{- /* Get page content. */ -}}
+  {{- partial "main/content.html" . -}}
+
+  {{- /* List RegularPages, or Sections. */ -}}
+  {{- if or
+    (in .Site.MainSections .Section)
+    (and .RegularPages (not .Sections))
+    (and .Sections (not .RegularPagesRecursive)) -}}
+    {{- partial "main/paginator.html" . -}}
+  {{- end -}}
+
+  {{- /* Get pagination to previous and next pages. */ -}}
+  {{- if and site.Params.show_pagination .Content (and .Pages (and .Parent.IsHome (in site.MainSections .Section))) -}}
+    {{- partial "main/pagination.html" . -}}
+  {{- end -}}
+
+{{- end -}}
+{{- /* End main. */ -}}

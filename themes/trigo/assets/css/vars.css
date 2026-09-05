@@ -1,0 +1,71 @@
+/*
+SPDX-License-Identifier: MIT
+SPDX-FileCopyrightText: 2026 FreeCAD
+SPDX-FileNotice: Part of the Trigo theme for Hugo.
+*/
+
+/* Theme global variables CSS stylesheet, e.g. dimensions, colors, fonts for both Light and Dark chroma. */
+
+
+:root {
+  --width: clamp(56rem, 20rem + 50vw, 100rem);
+  --content-width: 80ch;
+  --header-height: 4rem;
+  --footer-height: 8rem;
+  --gap: 1rem;
+  --line: 0.125rem;
+  --padding: 0.75rem 1.5rem;
+  --card-width: clamp(16rem, 4rem + 17.5vw, 32rem);
+  --angle: 135deg;
+
+  --header: rgb(248, 248, 248);
+  --entry: rgb(244, 244, 244);
+  --muted: rgb(240, 240, 240);
+  --theme: rgb(232, 232, 232);
+  --tone: rgb(224, 224, 224);
+  --backdrop: rgba(192, 192, 192, 0.8);
+
+  --primary: rgb(32, 32, 32);
+  --secondary: rgb(64, 64, 64);
+  --tertiary: rgb(96, 96, 96);
+
+  --accent: color-mix(in srgb, var(--accent-color) 75%, black 10%);
+  --accent-hover: color-mix(in srgb, var(--accent-color) 50%, black 5%);
+
+  --border: var(--line) solid var(--tone);
+  --outline-hover: var(--line) solid var(--accent-hover);
+  --outline-focus: calc(var(--line) * 2) solid var(--accent-hover);
+  --underline: underline solid currentColor var(--line);
+  --shadow: 1px 2px 8px rgba(16, 16, 32, 0.05);
+
+  --filter: brightness(1.05) saturate(105%);
+  --transform-hover: scale(1.02);
+  --transform-active: scale(0.98);
+  --transition: all 0.2s ease-in-out;
+
+/* Variables for text sizes: small (terms, footnotes), medium (normal text), large (h3), extra large (h2), extra extra large (h1) */
+  --s: 0.75rem;
+  --m: 1rem;
+  --l: 1.5rem;
+  --xl: 2.25rem;
+  --xxl: 3.5rem;
+  --xxxl: 5rem;
+}
+
+
+/* If changing Dark chroma values, do not forget to update them in layouts/partials/head.html as well */
+
+.dark {
+  --header: rgb(8, 8, 8);
+  --theme: rgb(16, 16, 16);
+  --muted: rgb(24, 24, 24);
+  --entry: rgb(32, 32, 32);
+  --tone: rgb(48, 48, 48);
+  --backdrop: rgba(64, 64, 64, 0.8);
+  --primary: rgb(240, 240, 240);
+  --secondary: rgb(224, 224, 224);
+  --tertiary: rgb(208, 208, 208);
+  --accent: color-mix(in srgb, var(--accent-color) 50%, white 15%);
+  --accent-hover: color-mix(in srgb, var(--accent-color) 75%, white 30%);
+  --angle: 315deg;
+}

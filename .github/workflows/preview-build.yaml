@@ -1,0 +1,43 @@
+name: Preview build
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+permissions:
+  contents: read
+concurrency:
+  group: preview-build-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  build:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    env:
+      HUGO_VERSION: 0.160.0
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          submodules: recursive
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Install Hugo
+        run: |
+          curl --fail --location --silent --show-error --output "${RUNNER_TEMP}/hugo.tar.gz" "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_${HUGO_VERSION}_linux-amd64.tar.gz"
+          mkdir -p "${RUNNER_TEMP}/hugo/bin"
+          tar -C "${RUNNER_TEMP}/hugo/bin" -xf "${RUNNER_TEMP}/hugo.tar.gz" hugo
+          echo "${RUNNER_TEMP}/hugo/bin" >> "$GITHUB_PATH"
+      - name: Build preview
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPOSITORY: ${{ github.repository }}
+          REPOSITORY_OWNER: ${{ github.repository_owner }}
+        run: |
+          repository_name="${REPOSITORY#*/}"
+          preview_url="https://${REPOSITORY_OWNER}.github.io/${repository_name}/pr-${PR_NUMBER}/"
+          hugo --gc --minify --enableGitInfo --environment production --baseURL "$preview_url" --destination "${RUNNER_TEMP}/preview-site" --cacheDir "${RUNNER_TEMP}/hugo-cache"
+      - name: Upload preview artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: preview-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
+          path: ${{ runner.temp }}/preview-site
+          if-no-files-found: error
+          retention-days: 3

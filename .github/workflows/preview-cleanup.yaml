@@ -1,0 +1,37 @@
+name: Preview cleanup
+on:
+  pull_request_target:
+    types: [closed]
+permissions:
+  contents: write
+  pull-requests: write
+concurrency:
+  group: preview-publish-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: pages
+          fetch-depth: 0
+      - name: Remove preview
+        id: remove
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          case "$PR_NUMBER" in ''|*[!0-9]*) exit 1 ;; esac
+          preview_dir="pr-${PR_NUMBER}"
+          if [ -d "$preview_dir" ]; then rm -rf -- "$preview_dir"; echo "removed=true" >> "$GITHUB_OUTPUT"; else echo "removed=false" >> "$GITHUB_OUTPUT"; fi
+      - name: Commit cleanup
+        if: steps.remove.outputs.removed == 'true'
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          preview_dir="pr-${PR_NUMBER}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A -- "$preview_dir"
+          git commit -m "Clean up preview for PR #${PR_NUMBER}"
+          git push origin pages

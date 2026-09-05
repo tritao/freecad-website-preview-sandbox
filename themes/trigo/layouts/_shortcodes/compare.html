@@ -1,0 +1,119 @@
+{{- /*
+SPDX-License-Identifier: MIT
+SPDX-FileCopyrightText: 2026 FreeCAD
+SPDX-FileNotice: Part of the Trigo theme for Hugo.
+*/ -}}
+
+{{- /* Compare Slider Shortcode:
+
+  - Display a before/after comparison slider with divider and arrows handle.
+  - Support images from page bundles, static/assets directories, or external URLs.
+  - Support positional params or named params (before/after or left/right).
+  - Support resizing for processable formats.
+
+  @param {string} before/left – Left/before image filename/resource/URL
+  @param {string} after/right – Right/after image filename/resource/URL
+
+  @return {HTML} Render interactive before/after image comparison with responsive srcset.
+
+  @example {{< compare before="before.jpg" after="after.jpg" >}}
+  @example {{< compare "before.jpg" "after.jpg" >}}
+
+*/ -}}
+
+
+{{- $before := or (.Get "before") (.Get "left") (.Get 0) -}}
+{{- $after := or (.Get "after") (.Get "right") (.Get 1) -}}
+
+{{- if and $before $after -}}
+
+  {{- $page := .Page -}}
+  {{- $ordinal := .Ordinal -}}
+  {{- $format := site.Params.resize_format | default "webp" -}}
+  {{- $resize_dimensions := site.Params.resize_dimensions | default (slice 400 800) -}}
+  {{- $alt := i18n "image_fallback" | default "Image" -}}
+
+  {{- $images := slice (dict "src" $before "class" "before") (dict "src" $after "class" "after") -}}
+
+  {{- with $images -}}
+
+    <div id="compare{{ $ordinal }}" class="compare">
+
+      {{- range $index, $resource := . -}}
+
+        {{- $src := .src -}}
+        {{- $class := .class -}}
+        {{- $img := $page.Resources.GetMatch $src | default (resources.Get $src) -}}
+
+        {{- if and
+          (not $img)
+          (hasPrefix $src "http")
+          (site.Params.allow_remote | default true)
+        -}}
+
+          {{- with try (
+            resources.GetRemote
+            $src
+            (dict "timeout" (site.Params.timeout | default "5s"))
+          ) -}}
+
+            {{- with .Err -}}
+              {{- warnf "%q shortcode: failed to fetch remote resource %q: %s" $.Name $src . -}}
+
+            {{- else with .Value -}}
+              {{- $img = . -}}
+            {{- end -}}
+          {{- end -}}
+        {{- end -}}
+
+        {{- if reflect.IsImageResourceProcessable $img -}}
+          {{- $srcset := slice -}}
+          {{- $sizes := slice -}}
+
+          {{- range $resize_dimensions -}}
+            {{- $resize_width := int . -}}
+            {{- if lt $resize_width $img.Width -}}
+              {{- $resized := $img.Resize (printf "%dx %s" $resize_width $format) -}}
+              {{- $srcset = $srcset | append (printf "%s %dw" $resized.RelPermalink $resize_width) -}}
+              {{- $sizes = $sizes | append (printf "(max-width: %dpx) %dpx" $resize_width $resize_width) -}}
+            {{- end -}}
+          {{- end -}}
+
+          {{- $srcset = $srcset | append (printf "%s %dw" $img.RelPermalink $img.Width) -}}
+          {{- $sizes = $sizes | append "75vw" -}}
+
+          <img
+            class="{{ $class }}"
+            srcset="{{ delimit $srcset ", " }}"
+            sizes="{{ delimit $sizes ", " }}"
+            src="{{ $img.RelPermalink }}"
+            width="{{ $img.Width }}"
+            height="{{ $img.Height }}"
+            alt="{{ $alt }}"
+            loading="lazy"
+            fetchpriority="low">
+
+        {{- else -}}
+          <img
+            class="{{ $class }}"
+            src="{{ if $img }}{{ $img.RelPermalink }}{{ else }}{{ .src }}{{ end }}"
+            alt="{{ $alt }}"
+            loading="lazy"
+            fetchpriority="low">
+        {{- end -}}
+      {{- end -}}
+
+      <div class="divider"></div>
+      <div class="handle">
+        {{- partialCached "utils/icon.html" "tri_left" "tri_left" -}}
+        {{- partialCached "utils/icon.html" "tri_right" "tri_right" -}}
+      </div>
+    </div>
+
+  {{- else -}}
+    {{- warnf "%q shortcode: no images found for '%v' params on %s" .Name .Params .Position -}}
+  {{- end -}}
+
+{{- else -}}
+  {{- warnf "%q shortcode: missing required 'before/left' and 'after/right' arguments on %s" .Name .Position -}}
+{{- end -}}

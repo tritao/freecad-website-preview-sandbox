@@ -1,0 +1,44 @@
+{{- /*
+SPDX-License-Identifier: MIT
+SPDX-FileCopyrightText: 2026 FreeCAD
+SPDX-FileNotice: Part of the Trigo theme for Hugo.
+*/ -}}
+
+{{- /* Term template:
+
+  - List RegularPages for current Term.
+*/ -}}
+
+
+{{- define "main" -}}
+
+  {{- $taxonomy := lower .Data.Plural -}}
+  {{- $taxonomy_title := i18n (lower .Data.Singular) | default .Data.Singular -}}
+
+  {{- $taxonomy_map := partialCached "utils/taxonomy_map.html" . "taxonomy_map" -}}
+  {{- $term := index (index $taxonomy_map $taxonomy) (.Data.Term | anchorize) -}}
+
+  {{- $key := partialCached "utils/cache_key.html" . . -}}
+
+  <section class="hero">
+
+    <h1 class="title">
+      {{- partialCached "utils/icon.html" $taxonomy $taxonomy -}}
+
+      {{- with $term -}}
+        {{- printf "%s: %s (%d)" (title $taxonomy_title) (title .link_title) .count -}}
+      {{- end -}}
+    </h1>
+
+    {{- with .Description -}}
+      <h3 class="description">{{ . }}</h3>
+    {{- end -}}
+
+    {{- partialCached "main/cover.html" . $key -}}
+  </section>
+
+  {{- /* List RegularPages. */ -}}
+  {{- partial "main/paginator.html" . -}}
+
+{{- end -}}
+{{- /* End main. */ -}}

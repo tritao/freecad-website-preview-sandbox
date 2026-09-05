@@ -1,0 +1,28 @@
+{{- /*
+SPDX-License-Identifier: MIT
+SPDX-FileCopyrightText: 2026 FreeCAD
+SPDX-FileNotice: Part of the Trigo theme for Hugo.
+*/ -}}
+
+{{- /* Load JS script. */ -}}
+
+
+{{- $script_filename := . -}}
+{{- $localized_scripts := slice "copy" "redirect_to_donate" "redirect_to_thanks" -}}
+
+{{- with resources.Get (printf "js/%s.js" $script_filename) -}}
+  {{- $script := . -}}
+  {{- if in $localized_scripts $script_filename -}}
+    {{- $target := printf "js/%s/%s.js" site.Language.Name $script_filename -}}
+    {{- $script = resources.ExecuteAsTemplate $target site . -}}
+  {{- end -}}
+  {{- if hugo.IsProduction -}}
+    {{- $script = $script | minify | fingerprint -}}
+  {{- end -}}
+  <script
+    src="{{ $script.RelPermalink }}"
+    type="text/javascript"
+    defer
+    {{- if hugo.IsProduction }} integrity="{{ $script.Data.Integrity }}" crossorigin="anonymous"{{ end -}}>
+  </script>
+{{- end -}}

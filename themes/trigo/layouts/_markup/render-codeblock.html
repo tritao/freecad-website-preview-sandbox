@@ -1,0 +1,75 @@
+{{- /*
+SPDX-License-Identifier: MIT
+SPDX-FileCopyrightText: 2026 FreeCAD
+SPDX-FileNotice: Part of the Trigo theme for Hugo.
+*/ -}}
+
+{{- /* Custom highlight rendering for code blocks:
+
+  - Use default highlight with options and attributes.
+  - Add file name option above rendered code.
+  - Add trim option to remove leading and trailing whitespaces.
+
+  @param {string} [file] – Optional file name or URL to display above the rendered code.
+  @param {bool} [trim=true] – Option whether to trim leading and trailing whitespaces.
+
+  @returns {template.HTML}
+
+  @examples
+
+    ```go {file="https://github.com/user/repo/blob/main/main.go" linenos=inline}
+    fmt.Println("Hello world!")
+    ```
+
+*/ -}}
+
+
+{{- $content := .Inner -}}
+{{- $file_path := .Attributes.file -}}
+{{- $trim := .Attributes.trim | default true -}}
+
+{{- if $trim -}}
+  {{- $content = strings.TrimSpace $content -}}
+{{- end -}}
+
+{{- $is_external := partialCached "utils/is_external.html" $file_path $file_path -}}
+{{- $file := cond $is_external (path.Base $file_path) $file_path -}}
+
+{{- $lang := or
+  .Type
+  .Attributes.lang
+  (strings.TrimPrefix "." (path.Ext $file))
+  "text"
+-}}
+{{- if in (slice "html" "gotmpl" "hugo") $lang -}}
+  {{- $lang = "go-html-template" -}}
+{{- end -}}
+
+<div class="codeblock">
+  {{- with $file -}}
+    <div class="codeblock-file">
+      {{- if $is_external -}}
+        <a
+          class="codeblock-link"
+          href="{{ $file_path }}"
+          target="_blank"
+          rel="external noreferrer nofollow">
+      {{- end -}}
+
+      {{- partialCached "utils/icon.html" "words" "words" -}}
+      {{- . -}}
+
+      {{- if $is_external -}}
+        {{- partialCached "utils/icon.html" "external" "external" -}}
+        </a>
+      {{- end -}}
+    </div>
+  {{- end -}}
+
+{{- if transform.CanHighlight $lang -}}
+  {{- highlight $content $lang (.Options | default dict) -}}
+
+{{- else -}}
+  <pre><code>{{ $content }}</code></pre>
+{{- end -}}
+</div>

@@ -1,0 +1,208 @@
+# Params default config with custom Theme-related and CMS specifics.
+
+site_authors: FreeCAD
+site_logo: FreeCAD-wordmark.svg
+site_keywords:
+  - free
+  - open-source
+  - CAD
+  - software
+  - tool
+  - parametric
+  - modeling
+  - model
+  - design
+  - product
+  - engineering
+  - manufacturing
+  - community
+  - workbench
+  - FOSS
+  - 3D
+  - BIM
+  - CAM
+  - FEM
+  - FEA
+
+default_icon: FreeCAD-symbol-mono.svg
+default_chroma: auto # dark or light
+
+style:
+  accent-color: hsl(210, 75%, 55%)
+  radius: 0.5rem
+  font-sans: '-apple-system, Arial, Helvetica, "Helvetica Neue", Verdana, BlinkMacSystemFont, "Avenir Next", Avenir, "Nimbus Sans L", "Noto Sans", "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", sans-serif'
+  font-mono: '"Ubuntu Mono", monospace, "Lucida Console", Monaco, Menlo, Consolas, "Andale Mono"'
+
+# Theme features
+show_date: true
+show_taxonomy: true
+show_word_count: false
+show_reading_time: true
+show_translations: false
+show_pagination: true
+show_popover: true
+enable_hue: true
+
+# JS scripts
+enable_js_chroma: true
+enable_js_copy: true
+enable_js_details: true
+enable_js_toc: true
+enable_js_carousel: true
+enable_js_compare: true
+enable_js_canvas: true
+enable_js_checksum: true
+enable_js_calendar: true
+enable_js_addons: true
+enable_js_donate: true
+enable_js_redirect_to_donate: true
+enable_js_redirect_to_thanks: true
+
+# External and remote interaction
+allow_remote: true
+enable_fediverse: true
+
+# Theme and pages debug info
+enable_debug: false
+
+# Remote resources fetching
+timeout: 5s
+
+git_repository: https://github.com/freecad/website
+
+socials:
+  - label: Forum
+    url: https://forum.freecad.org
+  - label: GitHub
+    url: https://github.com/freecad
+  - label: Codeberg
+    url: https://codeberg.org/freecad
+  - label: Mastodon
+    url: https://social.freecad.org/@freecad
+  - label: Reddit
+    url: https://www.reddit.com/r/freecad
+  - label: Matrix
+    url: https://matrix.to/#/#FreeCAD_FreeCAD:gitter.im
+  - label: Discord
+    url: https://discord.gg/w2cTKGzccC
+  - label: LinkedIn
+    url: https://www.linkedin.com/groups/4295230
+
+# Image processing
+resize_format: webp
+resize_dimensions:
+  - 400
+  - 800
+  - 1600
+
+# Image default attributes
+image_loading: lazy
+image_priority: low
+image_decoding: async
+
+# Custom partials parameters. For localized strings, see relevant content files.
+
+# Download Section
+download:
+  - os: windows
+    label: Windows
+    subtitle: Windows 10+
+    order: 1
+  - os: mac
+    label: macOS
+    subtitle: macOS 12+ Monterey
+    order: 2
+  - os: linux
+    label: GNU/Linux
+    subtitle: All distributions
+    order: 3
+
+# Calendar in Community
+calendar:
+  host: https://open-web-calendar.hosted.quelltext.eu/calendar.html
+  url: https://cloud.freecad.org/remote.php/dav/public-calendars/ZtJiizXtSqBaacwo
+  title: FreeCAD Calendar
+  tabs:
+    - month
+    - week
+    - agenda
+  skin: terrace
+  menu: false
+  target: _blank
+
+# Telemetry in Community
+telemetry:
+  entries_max: 12
+  order:
+    - freecad_version
+    - language
+    - system
+    - machine
+    - mods
+    - workbench_default
+    - theme
+    - screen_resolution
+    - navigation_style
+    - navigation_orbit_style
+    - ui_toolbar_icon_size
+    - python_version
+
+# Donate
+donate:
+  currencies:
+    - code: EUR
+      symbol: €
+      selected: true
+    - code: USD
+      symbol: $
+  once:
+    tiers:
+      - amount: 25
+      - amount: 50
+      - amount: 100
+      - amount: 200
+  monthly:
+    tiers:
+      - type: normal
+        amount: 5
+      - type: bronze
+        amount: 25
+        color: "#A86A27"
+      - type: silver
+        amount: 100
+        color: "#9A9A9A"
+      - type: gold
+        amount: 200
+        color: "#D4A715"
+  payment:
+    - platform: Paypal
+      weight: 1
+      url: https://www.paypal.com/donate/?hosted_button_id=M3Z8BGW6DB69Q
+    - platform: Stripe
+      weight: 2
+      url: https://donate.stripe.com/14k3ei9TYgwFclq145
+    - platform: GitHub
+      weight: 3
+      url: https://github.com/sponsors/freecad
+    - platform: OpenCollective
+      weight: 4
+      url: https://opencollective.com/freecad/donate
+    - platform: SEPA
+      weight: 5
+      title: SEPA Bank transfer
+      details:
+        - Beneficiary: The FreeCAD Project Association
+        - Beneficiary_Address: Rue Docteur Kuborn 31/46, 1070 Anderlecht, Belgium
+        - IBAN: BE04 0019 2896 4531
+        - BIC-SWIFT: GEBABEBBXXX
+        - Bank: BNP Paribas Fortis
+        - Bank_Address: Rue de la Station 64, 1360 Perwez, Belgium
+
+# Content Management System
+enable_cms: true
+cms_name: sveltia
+cms_url: https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js
+cms_app_title: FreeCAD Admin CMS
+cms_logout_redirect_url: https://www.freecad.org
+cms_logo_src: https://www.freecad.org/svg/icon-freecad.svg
+cms_branch: main

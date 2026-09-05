@@ -1,0 +1,82 @@
+{{- /*
+SPDX-License-Identifier: MIT
+SPDX-FileCopyrightText: 2026 FreeCAD
+SPDX-FileNotice: Part of the Trigo theme for Hugo.
+*/ -}}
+
+{{- /* Custom rendering hook for content links:
+
+  - Support relative, absolute, internal, external and fragment link destination path or url.
+  - External links open in new tab and include icon.
+  - Internal links show tooltip preview on hover.
+  - Internal hash links include icon.
+
+  @returns {template.HTML}
+
+  @examples
+
+    [Link description text](link/destination "Link title")
+
+*/ -}}
+
+
+{{- $url := urls.Parse .Destination -}}
+{{- $href := $url.String -}}
+{{- $is_fragment := false -}}
+
+{{- if strings.HasPrefix $href "#" -}}
+  {{- $href = printf "%s#%s" .PageInner.RelPermalink $url.Fragment -}}
+  {{- $is_fragment = true -}}
+
+{{- else if and $href (not $url.IsAbs) -}}
+  {{- $path := strings.TrimPrefix "./" $url.Path -}}
+  {{- with or
+    ($.PageInner.GetPage $path)
+    ($.PageInner.Resources.Get $path)
+    (resources.Get $path)
+  -}}
+    {{- $href = .RelPermalink -}}
+    {{- with $url.RawQuery -}}
+      {{- $href = printf "%s?%s" $href . -}}
+    {{- end -}}
+    {{- with $url.Fragment -}}
+      {{- $href = printf "%s#%s" $href . -}}
+      {{- $is_fragment = true -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- $key := partialCached "utils/cache_key.html" $href $href -}}
+{{- $link := partialCached "utils/link_redirect.html" $href $key -}}
+
+{{- $is_external := partialCached "utils/is_external.html" $link $link -}}
+
+{{- $classes := slice (cond $is_external "external-link" "internal-tooltip") -}}
+{{- if $is_fragment -}}
+  {{- $classes = $classes | append "hash-link" -}}
+{{- end -}}
+
+<a
+  href="{{ $link }}"
+  class="{{ delimit $classes " " }}"
+  {{- with .Title }} title="{{ . | plainify }}"{{ end -}}
+  {{- if $is_external }} target="_blank" rel="external noreferrer nofollow"{{ end -}}>
+
+  {{- if $is_fragment -}}
+    {{- partialCached "utils/icon.html" "hash" "hash" -}}
+  {{- end -}}
+
+  {{- with .Text -}}{{ . }}{{- end -}}
+
+  {{- if $is_external -}}
+    {{- partialCached "utils/icon.html" "external" "external" -}}
+
+  {{- else -}}
+    {{- with .Page.GetPage .Destination -}}
+      <span class="tooltip">
+        <strong>{{ .Title }}</strong>
+        {{- .Description -}}
+      </span>
+    {{- end -}}
+  {{- end -}}
+</a>

@@ -1,0 +1,43 @@
+{{- /*
+SPDX-License-Identifier: MIT
+SPDX-FileCopyrightText: 2026 FreeCAD
+SPDX-FileNotice: Part of the Trigo theme for Hugo.
+*/ -}}
+
+{{- /* Tree shortcode:
+
+  @param {string} [label] – Optional label for tree.
+  @param {string} [css_class] – Optional CSS class for whole tree.
+
+  @return {HTML} Render tree-like directory or list with inner content/branches/leaves and optional label.
+
+  @example {{< tree label="Tutorials" css_class="accent" >}}...{{< /tree >}}
+  @example {{< tree "Tutorials" "accent" >}}...{{< /tree >}}
+
+*/ -}}
+
+
+{{- $inner := .InnerDeindent -}}
+
+{{- if $inner -}}
+
+  {{- $label := cond (.IsNamedParams) (.Get "label") (.Get 0) -}}
+  {{- $class := cond (.IsNamedParams) (.Get "css_class") (.Get 1) -}}
+
+  {{- $classes := slice "tree" -}}
+  {{- with $class -}}
+    {{- $classes = $classes | append . -}}
+  {{- end -}}
+
+  <ul class="{{ delimit $classes " " }}">
+
+    {{- $inner -}}
+
+    {{- with $label -}}
+      <li class="tree-label">{{ . }}</li>
+    {{- end -}}
+  </ul>
+
+{{- else -}}
+  {{- warnf "%q shortcode: missing required 'inner' content on %s" .Name .Position -}}
+{{- end -}}

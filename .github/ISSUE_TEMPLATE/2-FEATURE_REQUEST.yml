@@ -1,0 +1,31 @@
+name: Feature request
+description: Feature or improvement idea to help improve the website project.
+title: "Feature: "
+labels: Feature
+type: feature
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this feature request! Please [search](https://github.com/freecad/Website/issues) if a similar requested feature already exists.
+        This feature request template helps ensure issues can be reviewed and solved efficiently.
+        Please do not add 2 unrelated issues in a single request.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Feature description
+      description: Clear and concise description of the feature or improvement idea and how it impacts user experience, workflow or performance.
+      placeholder: Describe the feature briefly.
+    validations:
+      required: true
+
+  - type: textarea
+    id: implementation
+    attributes:
+      label: Feature implementation
+      description: Provide info how the feature can be implemented.
+      placeholder: Describe the implementation briefly.
+    validations:
+      required: true

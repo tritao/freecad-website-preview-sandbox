@@ -1,0 +1,91 @@
+{{- /*
+SPDX-License-Identifier: MIT
+SPDX-FileCopyrightText: 2026 FreeCAD
+SPDX-FileNotice: Part of the Trigo theme for Hugo.
+*/ -}}
+
+{{- /* Article thumbnail:
+
+  - Support local and remote cover resources with section and category fallbacks.
+  - Get responsive images set if processable.
+
+  @returns {template.HTML}
+*/ -}}
+
+
+{{- $page := .Page -}}
+{{- $thumbnail := "" -}}
+
+{{- with $page.Params.cover -}}
+  {{- with .image -}}
+    {{- $url := urls.Parse . -}}
+
+    {{- /* Remote resource. */ -}}
+    {{- if and
+      (hasPrefix $url.Scheme "http")
+      (site.Params.allow_remote | default true)
+    -}}
+
+      {{- with try (
+        resources.GetRemote
+        .
+        (dict "timeout" (site.Params.timeout | default "5s"))
+      ) -}}
+
+        {{- with .Err -}}
+          {{- warnf "Failed to fetch thumbnail %q in page %q: %s" $page.Params.cover.image $page.LinkTitle . -}}
+
+        {{- else with .Value -}}
+          {{- $thumbnail = . -}}
+        {{- end -}}
+
+      {{- end -}}
+
+    {{- /* Local bundled image. */ -}}
+    {{- else -}}
+      {{- $path := printf "*%s*" . -}}
+      {{- $thumbnail = ($page.Resources.ByType "image").Get . | default (resources.Get .) -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- /* Thumbnail fallbacks for RegularPages. */ -}}
+{{- if and (not $thumbnail) (eq $page.BundleType "single") -}}
+  {{- $first_section := $page.FirstSection -}}
+  {{- $categories := $page.Params.categories -}}
+  {{- $category := cond (reflect.IsSlice $categories)
+    (index $categories 0)
+    $categories
+    | lower
+  -}}
+
+  {{- if and $first_section $category -}}
+    {{- $thumbnail = ($first_section.Resources.ByType "image").GetMatch (printf "*%s*" $category) -}}
+  {{- end -}}
+
+  {{- if and (not $thumbnail) $first_section -}}
+    {{- with $first_section.Params.cover.image -}}
+      {{- $thumbnail = ($first_section.Resources.ByType "image").GetMatch (printf "*%s*" .) -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- with $thumbnail -}}
+  {{- $key := partialCached "utils/cache_key.html" $page $page -}}
+
+  <figure class="thumbnail">
+
+    {{- if reflect.IsImageResource . -}}
+
+      {{- partialCached "utils/process_image.html" (dict
+        "image" .
+        "alt" $page.LinkTitle
+        "attributes" dict
+      ) $key -}}
+
+    {{- else -}}
+      {{- warnf "Thumbnail MediaType not supported for %q in page %q" . $page.LinkTitle -}}
+    {{- end -}}
+
+  </figure>
+{{- end -}}

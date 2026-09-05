@@ -1,0 +1,117 @@
+{{- /*
+SPDX-License-Identifier: MIT
+SPDX-FileCopyrightText: 2026 FreeCAD
+SPDX-FileNotice: Part of the Trigo theme for Hugo.
+*/ -}}
+
+{{- /* Download custom partial:
+
+  - Get current release page or latest release for download section.
+  - Render platform-specific download cards from release front matter metadata and site params.
+  - Show version and last modified date.
+
+  @returns {template.HTML}
+*/ -}}
+
+
+{{- $page := . -}}
+{{- $release := dict -}}
+{{- $releases_data := hugo.Data.releases.releases -}}
+
+{{- if $page.IsPage -}}
+  {{- with $page.File -}}
+    {{- $base := replace .ContentBaseName "-" "." -}}
+    {{- range sort $releases_data "published" "desc" -}}
+      {{- if hasPrefix .tag $base -}}
+        {{- $release = . -}}
+        {{- break -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+
+{{- else if and $page.IsSection (not $page.Parent.IsHome) -}}
+  {{- $release = index (sort (where $releases_data "prerelease" true) "published" "desc") 0 -}}
+
+{{- else -}}
+  {{- $release = index (where $releases_data "latest" true) 0 -}}
+{{- end -}}
+
+{{- if and $release (not $page.Params.redirect) -}}
+
+  {{- with site.Params.download -}}
+
+    {{- $download_title := i18n "download" | default "Download" -}}
+    {{- $checksum_title := i18n "copy_checksum" | default "Copy SHA-256 checksum to clipboard" -}}
+
+    {{- if $page.IsPage -}}
+      <hr style="width: var(--width);">
+      <div class="download-release">
+    {{- end -}}
+
+    <p class="release-title">
+      <strong>{{- printf "%s %s" $download_title $release.tag -}}</strong>
+      <span>{{- $release.published | time.Format ":date_long" }}</span>
+    </p>
+
+    <div class="download-box">
+      {{- range $platform := . -}}
+
+        {{- with index $release.assets $platform.os -}}
+
+          <div
+            class="download-card"
+            id="{{ $platform.os }}"
+            style="order: {{ $platform.order }};">
+
+            <div class="download-platform">
+              {{- partialCached "utils/icon.html" $platform.os (lower $platform.os) -}}
+              <h3>{{ $platform.label }}</h3>
+
+              {{- with $platform.subtitle -}}
+                <p>{{ . }}</p>
+              {{- end -}}
+            </div>
+
+            <div class="download-buttons">
+
+              {{- range $arch, $packages := . -}}
+                {{- range $package, $asset := $packages -}}
+
+                  {{- $link_title := printf "%s %s" $download_title $asset.name -}}
+                  <div class="button">
+                    <a
+                      class="link-donate"
+                      href="{{ $asset.url }}"
+                      title="{{ $link_title }}"
+                      target="_blank"
+                      rel="external noreferrer nofollow">
+                      {{- partialCached "utils/icon.html" "download" "download" -}}
+                      <strong>{{ i18n (printf "%s_%s" $package $arch) | default (printf "%s %s" $arch $package | title) }}</strong>
+                      <span>{{ partial "utils/format_filesize.html" $asset.size }}</span>
+                    </a>
+
+                    {{- with $asset.sha256 }}
+                      <button
+                        class="checksum-button"
+                        data-sha256="{{ . }}"
+                        data-title="{{ $checksum_title }}"
+                        title="{{ $checksum_title }}"
+                        aria-label="{{ $checksum_title }}">
+                        {{- partialCached "utils/icon.html" "checksum" "checksum" -}}
+                      </button>
+                    {{- end }}
+                  </div>
+                {{- end -}}
+              {{- end -}}
+
+            </div>
+          {{- end -}}
+        </div>
+
+      {{- end -}}
+    </div>
+
+  {{- if $page.IsPage -}}</div>{{- end -}}
+
+  {{- end -}}
+{{- end -}}

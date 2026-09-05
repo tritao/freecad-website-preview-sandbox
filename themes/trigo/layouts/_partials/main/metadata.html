@@ -1,0 +1,40 @@
+{{- /*
+SPDX-License-Identifier: MIT
+SPDX-FileCopyrightText: 2026 FreeCAD
+SPDX-FileNotice: Part of the Trigo theme for Hugo.
+*/ -}}
+
+{{- /* Page metadata:
+
+  - Render date, taxonomy terms with counts, word count, reading time, and translations.
+
+  @returns {template.HTML}
+*/ -}}
+
+
+{{- $params := site.Params -}}
+{{- $key := partialCached "utils/cache_key.html" . . -}}
+
+<div class="metadata">
+
+  {{- if $params.show_date -}}
+    {{- partialCached "main/meta_date.html" . $key -}}
+  {{- end -}}
+
+  {{- if $params.show_taxonomy -}}
+    {{- partialCached "main/meta_taxonomy.html" . $key -}}
+  {{- end -}}
+
+  {{- if $params.show_word_count -}}
+    {{- partialCached "main/meta_words.html" . $key -}}
+  {{- end -}}
+
+  {{- if $params.show_reading_time -}}
+    {{- partialCached "main/meta_reading.html" . $key -}}
+  {{- end -}}
+
+  {{- if $params.show_translations -}}
+    {{- partialCached "main/meta_translations.html" . $key -}}
+  {{- end -}}
+
+</div>

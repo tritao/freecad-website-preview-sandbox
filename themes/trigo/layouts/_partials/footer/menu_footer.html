@@ -1,0 +1,139 @@
+{{- /*
+SPDX-License-Identifier: MIT
+SPDX-FileCopyrightText: 2026 FreeCAD
+SPDX-FileNotice: Part of the Trigo theme for Hugo.
+*/ -}}
+
+{{- /* Footer navigation Menu:
+
+  - Footer entries by Parent or Section.
+  - Support Children or direct RegularPages.
+  - Set active for current Section.
+  - Handle external links and optional class.
+*/ -}}
+
+
+{{- $first_section := . -}}
+
+<nav class="footer-menu">
+  <ul>
+    {{- range site.Menus.footer -}}
+
+      {{- $url := .URL -}}
+      {{- with .Page -}}
+        {{- $key := partialCached "utils/cache_key.html" . . -}}
+        {{- $url = partialCached "utils/link_redirect.html" . $key -}}
+      {{- end -}}
+
+      {{- $is_external := partialCached "utils/is_external.html" $url $url -}}
+
+      {{- $name := i18n (lower .KeyName) | default .Name -}}
+      {{- with .Page -}}
+        {{- if .IsHome -}}
+          {{- $name = i18n "home" | default site.Title -}}
+        {{- end -}}
+      {{- end -}}
+
+      {{- $aria := "" -}}
+      {{- $class := slice -}}
+      {{- if or
+        ($first_section.IsMenuCurrent .Menu .)
+        ($first_section.HasMenuCurrent .Menu .)
+      -}}
+        {{- $aria = "page" -}}
+        {{- $class = $class | append "active" -}}
+      {{- end -}}
+      {{- with .Params.class -}}
+        {{- $class = $class | append . -}}
+      {{- end -}}
+
+      {{- if or .Page $is_external -}}
+        <li>
+          <a
+            href="{{ $url }}"
+            {{- with $aria }} aria-current="{{ . }}"{{ end -}}
+            {{- with $class }} class="{{ delimit . " " }}"{{ end -}}
+            {{- if $is_external }} target="_blank" rel="external noreferrer nofollow"{{ end -}}>
+            {{- $name -}}
+
+            {{- if $is_external -}}
+              {{- partialCached "utils/icon.html" "external" "external" -}}
+            {{- end -}}
+          </a>
+
+          {{- /* Children or sub-sections. */ -}}
+          {{- if or .Page .Children -}}
+            <ul>
+              {{- range .Children  -}}
+
+                {{- $child_url := .URL -}}
+                {{- with .Page -}}
+                  {{- $key := partialCached "utils/cache_key.html" . . -}}
+                  {{- $child_url = partialCached "utils/link_redirect.html" . $key -}}
+                {{- end -}}
+
+                {{- $is_external := partialCached "utils/is_external.html" $child_url $child_url -}}
+
+                <li>
+                  <a
+                    href="{{ $child_url }}"
+                    {{- with .Params.class }} class="{{ delimit . " " }}"{{ end -}}
+                    {{- if $is_external }} target="_blank" rel="external noreferrer nofollow"{{ end -}}>
+                    {{- .Name -}}
+
+                    {{- if $is_external -}}
+                      {{- partialCached "utils/icon.html" "external" "external" -}}
+                    {{- end -}}
+                  </a>
+                </li>
+              {{- end -}}
+
+              {{- with .Page -}}
+                {{- if and .Sections (not .IsHome) -}}
+                  {{- range .Sections.ByWeight -}}
+
+                    {{- $page_url := .RelPermalink -}}
+                    {{- $key := partialCached "utils/cache_key.html" . . -}}
+                    {{- $page_url = partialCached "utils/link_redirect.html" . $key -}}
+
+                    {{- $is_external := partialCached "utils/is_external.html" $page_url $page_url -}}
+
+                    <li>
+                      <a
+                        href="{{ $page_url }}"
+                        {{- with .Params.class }} class="{{ delimit . " " }}"{{ end -}}
+                        {{- if $is_external }} target="_blank" rel="external noreferrer nofollow"{{ end -}}>
+                        {{- .LinkTitle -}}
+
+                        {{- if $is_external -}}
+                          {{- partialCached "utils/icon.html" "external" "external" -}}
+                        {{- end -}}
+                      </a>
+                    </li>
+                  {{- end -}}
+
+                {{- else if eq .Section (index site.MainSections 0) -}}
+                  {{- $taxonomy_map := partialCached "utils/taxonomy_map.html" . "taxonomy_map" -}}
+                  {{- range $key, $value := $taxonomy_map -}}
+
+                    {{- if hasSuffix $key "_data" -}}
+                      {{- $link_title := lower $value.link_title -}}
+                      {{- $title := i18n $link_title | default $link_title -}}
+                      <li>
+                        <a href="{{ $value.rel_permalink }}">
+                          {{- $title -}}
+                        </a>
+                      </li>
+                    {{- end -}}
+                  {{- end -}}
+                {{- end -}}
+              {{- end -}}
+
+            </ul>
+          {{- end -}}
+        </li>
+      {{- end -}}
+
+    {{- end -}}
+  </ul>
+</nav>

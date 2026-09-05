@@ -1,0 +1,90 @@
+/*
+SPDX-License-Identifier: MIT
+SPDX-FileCopyrightText: 2026 FreeCAD
+SPDX-FileNotice: Part of the Trigo theme for Hugo.
+*/
+
+/* Share CSS stylesheet. */
+
+
+/* Fedishare form */
+
+.fedishare {
+  padding: var(--gap);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+#shareForm {
+  width: var(--content-width);
+  padding: calc(var(--gap) * 1.5);
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: var(--gap);
+  border-radius: var(--radius);
+  background: var(--entry);
+}
+
+#shareForm label {
+  width: 100%;
+  margin: 0;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: calc(var(--gap) * 0.5);
+}
+
+#shareForm :is(input:not([type="checkbox"]), textarea):not([readonly]) {
+  width: 100%;
+  padding: calc(var(--gap) * 0.75);
+  border-radius: var(--radius);
+  color: var(--secondary);
+  background: var(--theme);
+}
+
+#shareForm [readonly] {
+  width: 100%;
+  padding: calc(var(--gap) * 0.75);
+  border-radius: var(--radius);
+  color: var(--tertiary);
+  background: var(--theme);
+}
+
+#shareForm :is(.fedishare-instance-container, [for="rememberInstance"]) {
+  width: 100%;
+  display: inline-flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: var(--gap);
+}
+
+#shareForm .fedishare-instance {
+  flex-grow: 1;
+}
+
+#shareForm #instance:invalid {
+  color: crimson;
+}
+
+#shareForm #instance:placeholder-shown {
+  color: var(--tone);
+}
+
+#shareForm #rememberInstance {
+  margin-inline-end: calc(var(--gap) * 2);
+}
+
+#shareForm #submit {
+  width: 100%;
+  margin-top: var(--gap);
+}
+
+:is(#shareForm #submit:disabled, #shareForm:has(#instance:invalid) #submit) {
+  background: var(--tone);
+  cursor: not-allowed;
+}

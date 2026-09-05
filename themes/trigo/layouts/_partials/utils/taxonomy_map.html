@@ -1,0 +1,56 @@
+{{- /*
+SPDX-License-Identifier: MIT
+SPDX-FileCopyrightText: 2026 FreeCAD
+SPDX-FileNotice: Part of the Trigo theme for Hugo.
+*/ -}}
+
+{{- /* Taxonomy map with term index and data:
+
+  - Return per-taxonomy dictionaries basic data, terms sorted index and data.
+*/ -}}
+
+
+{{- $result := dict -}}
+
+{{- range $taxonomy, $terms := site.Taxonomies -}}
+
+  {{- /* Map of counts per taxonomy term (e.g. events: 123). */ -}}
+  {{- $map := dict -}}
+  {{- $keys := slice -}}
+
+  {{- range $name, $term := $terms -}}
+    {{- $key := $name | anchorize -}}
+    {{- $keys = $keys | append $key -}}
+
+    {{- $map = merge $map (dict $key (dict
+      "count" (len $term.Pages)
+      "rel_permalink" $term.Page.RelPermalink
+      "link_title" $term.Page.LinkTitle
+    )) -}}
+  {{- end -}}
+
+  {{- /* Map of terms index (e.g. events: 0, features: 1). */ -}}
+  {{- $keys = sort $keys -}}
+  {{- $terms_index := dict -}}
+  {{- range $i, $k := $keys -}}
+    {{- $terms_index = merge $terms_index (dict $k $i) -}}
+  {{- end -}}
+
+  {{- $taxonomy_data := dict -}}
+  {{- with .Page -}}
+    {{- $taxonomy_data = dict
+      "count" (len .Pages)
+      "rel_permalink" .RelPermalink
+      "link_title" .LinkTitle
+    -}}
+  {{- end -}}
+
+  {{- $result = merge $result (dict
+    $taxonomy $map
+    (printf "%s_index" $taxonomy) $terms_index
+    (printf "%s_data" $taxonomy) $taxonomy_data
+  ) -}}
+
+{{- end -}}
+
+{{- return $result -}}

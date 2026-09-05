@@ -1,0 +1,66 @@
+/*
+SPDX-License-Identifier: MIT
+SPDX-FileCopyrightText: 2026 FreeCAD
+SPDX-FileNotice: Part of the Trigo theme for Hugo.
+*/
+
+/* Archive page CSS stylesheet. */
+
+
+.archive-year {
+  max-width: var(--width);
+  margin: auto;
+  font-size: var(--l);
+}
+
+.archive-year:not(:last-of-type) {
+  border-bottom: var(--border);
+}
+
+.archive-month {
+  display: flex;
+  padding: var(--gap);
+  align-items: flex-start;
+  font-size: var(--l);
+}
+
+.archive-month-header {
+  width: calc(var(--width) * 0.25);
+}
+
+.archive-month:not(:last-of-type) {
+  border-bottom: var(--border);
+}
+
+.archive-month-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  font-size: var(--m);
+  gap: var(--gap);
+}
+
+.archive-entry {
+  width: 100%;
+  text-align: start;
+  padding-bottom: calc(var(--gap) * 0.5);
+  border-radius: var(--radius);
+}
+
+.archive-entry:focus-within {
+  outline: var(--outline-focus);
+}
+
+.archive-entry > a {
+  outline: transparent;
+}
+
+.archive-entry-title {
+  margin-bottom: 0;
+  padding: var(--gap);
+  color: var(--secondary);
+}
+
+.archive-entry-title:hover {
+  color: var(--accent-hover);
+}

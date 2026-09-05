@@ -1,0 +1,60 @@
+{{- /*
+SPDX-License-Identifier: MIT
+SPDX-FileCopyrightText: 2026 FreeCAD
+SPDX-FileNotice: Part of the Trigo theme for Hugo.
+*/ -}}
+
+{{- /* Base template:
+
+  - Define common structural HTML components.
+  - Get site head, header and footer partials.
+  - Set main block to be used by other templates.
+*/ -}}
+
+
+{{- $classes := slice
+  (cond (eq .BundleType "branch") "list" (cond (eq .BundleType "leaf") "single" "unknown-bundle"))
+  (printf "type-%s" .Type)
+  (printf "kind-%s" .Kind)
+  (cond .Layout (printf "layout-%s" .Layout) "")
+  | uniq -}}
+
+{{- $hue := 0 -}}
+{{- if site.Params.enable_hue -}}
+  {{- $key := partialCached "utils/cache_key.html" . . -}}
+  {{- $hue = partialCached "utils/color_hue.html" . $key -}}
+{{- end -}}
+
+<!DOCTYPE html>
+<html
+  lang="{{ site.Language.Locale }}"
+  dir="{{ site.Language.Direction | default "auto" }}">
+
+  {{- partial "head/page_head.html" . -}}
+
+  <body
+    class="{{ delimit $classes " " }}"
+    id="top">
+
+    {{- /* Notice for old browser, e.g. IE. */ -}}
+    {{- partialCached "utils/unsupported_browser.html" . -}}
+
+    {{- /* Get site top banner header. */ -}}
+    {{- partial "header/page_header.html" . -}}
+
+    {{- /* Debug info for current Page. */ -}}
+    {{- if and site.Params.enable_debug (not hugo.IsProduction) -}}
+      {{- partial "utils/debug_info.html" . -}}
+    {{- end -}}
+
+    {{- /* Define main block for standard and kind templates. */ -}}
+    <main {{- with $hue }} style="--hue: {{ . }};"{{ end -}}>
+      {{- block "main" . -}}
+      {{- end -}}
+    </main>
+
+    {{- partial "footer/page_footer.html" . -}}
+
+  </body>
+
+</html>

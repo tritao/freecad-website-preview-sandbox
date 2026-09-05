@@ -1,0 +1,88 @@
+{{- /*
+SPDX-License-Identifier: MIT
+SPDX-FileCopyrightText: 2026 FreeCAD
+SPDX-FileNotice: Part of the Trigo theme for Hugo.
+*/ -}}
+
+{{- /* Video shortcode:
+
+  @param {string} src – Path to video resource (page bundle).
+  @param {string} [poster] – Optional poster image resource.
+  @param {string} [caption] – Optional video caption.
+
+  @return {HTML} Render video with optional poster and fallback text if video missing.
+
+  @example {{< video src="video.mp4" poster="cover.jpg" >}}
+  @example {{< video "video.mp4" "cover.jpg" >}}
+
+*/ -}}
+
+
+{{- $src := cond (.IsNamedParams) (.Get "src") (.Get 0) -}}
+
+{{- if $src -}}
+
+  {{- $video := "" -}}
+  {{- $media_type := "" -}}
+
+  {{- $poster := cond (.IsNamedParams) (.Get "poster") (.Get 1) -}}
+  {{- $caption := cond (.IsNamedParams) (.Get "caption") (.Get 2) -}}
+
+  {{- $is_external := partialCached "utils/is_external.html" $src $src -}}
+
+  {{- if $is_external -}}
+    {{- $video = $src -}}
+
+  {{- else -}}
+    {{- with (.Page.Resources.Get $src | default (resources.Get $src)) -}}
+      {{- $video = .RelPermalink -}}
+      {{- $media_type = .MediaType.Type -}}
+    {{- else -}}
+      {{- warnf "%q shortcode: video resource %q not found on %s" $.Name $src $.Position -}}
+    {{- end -}}
+  {{- end -}}
+
+  {{- if $poster -}}
+    {{- with (.Page.Resources.Get $poster | default (resources.Get $poster)) -}}
+      {{- $poster = .RelPermalink -}}
+    {{- end -}}
+
+  {{- else if not $is_external -}}
+    {{- $filename := strings.TrimSuffix (path.Ext $src) $src -}}
+    {{- range .Page.Resources.ByType "image" -}}
+      {{- if strings.Contains .Name $filename -}}
+        {{- $poster = .RelPermalink -}}
+        {{- break -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+
+  {{- $video_fallback := i18n "video_fallback" | default "Your browser does not support the video tag." -}}
+
+  {{- with $video -}}
+    <figure>
+      <video
+        preload="metadata"
+        controls
+        playsinline
+        {{- with $poster }} poster="{{ . }}"{{ end -}}>
+
+        <source
+          src="{{ . }}"
+          {{- with $media_type }} type="{{ . }}"{{ end -}}>
+
+        {{- $video_fallback -}}
+      </video>
+
+      {{- with $caption -}}
+        <figcaption>{{ . }}</figcaption>
+      {{- end -}}
+    </figure>
+
+  {{- else -}}
+    <p>{{ printf "> [!WARNING]\n> Video resource '%s' not found." $src | $.Page.RenderString }}</p>
+  {{- end -}}
+
+{{- else -}}
+  {{- warnf "%q shortcode: missing required 'src' argument on %s" .Name .Position -}}
+{{- end -}}

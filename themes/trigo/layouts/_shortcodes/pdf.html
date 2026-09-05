@@ -1,0 +1,36 @@
+{{- /*
+SPDX-License-Identifier: MIT
+SPDX-FileCopyrightText: 2026 FreeCAD
+SPDX-FileNotice: Part of the Trigo theme for Hugo.
+*/ -}}
+
+{{- /* PDF shortcode:
+
+  @param {string} path – URL or path to PDF document.
+  @param {string} [title] – Optional PDF title.
+
+  @return {HTML} Render embedded PDF.
+
+  @example {{< pdf path="/docs/file.pdf" >}}
+  @example {{< pdf "file.pdf" >}}
+
+*/ -}}
+
+
+{{- $path := cond (.IsNamedParams) (.Get "path") (.Get 0) -}}
+{{- $title := cond (.IsNamedParams) (.Get "title") (.Get 1) | default (path.BaseName $path) -}}
+
+{{- with $path -}}
+
+  <div class="pdf">
+    <iframe
+      src="{{ . | safeURL }}"
+      title="{{ $title }}"
+      loading="lazy"
+      allowfullscreen>
+    </iframe>
+  </div>
+
+{{- else -}}
+  {{- warnf "%q shortcode: missing required 'path' argument on %s" .Name .Position -}}
+{{- end -}}

@@ -1,0 +1,100 @@
+{{- /*
+SPDX-License-Identifier: MIT
+SPDX-FileCopyrightText: 2026 FreeCAD
+SPDX-FileNotice: Part of the Trigo theme for Hugo.
+*/ -}}
+
+{{- /* Centralize JavaScript dependencies and custom scripts:
+
+  - Defer loading of JS after HTML is fully parsed and DOM elements are available (also performance).
+  - Define contextual conditions for each script to avoid unless loading.
+*/ -}}
+
+
+{{- $page := .Page -}}
+{{- $content := .Content -}}
+{{- $kind := .Kind -}}
+{{- $layout := .Layout -}}
+{{- $section := .Section -}}
+{{- $params := .Params -}}
+
+{{- $page_basename := "" -}}
+{{- with .File -}}
+  {{- $page_basename = .ContentBaseName -}}
+
+{{- else -}}
+  {{- $page_basename = path.BaseName .RelPermalink -}}
+{{- end -}}
+
+{{- $scripts := slice
+  (dict
+    "name" "chroma"
+  )
+  (dict
+    "name" "copy"
+    "kind" (slice "page" "section")
+    "content" "<code"
+  )
+  (dict
+    "name" "details"
+    "kind" (slice "page" "section")
+    "content" "<details"
+  )
+  (dict
+    "name" "toc"
+    "kind" (slice "page" "section")
+    "params" true
+  )
+  (dict
+    "name" "carousel"
+    "shortcode" true
+  )
+  (dict
+    "name" "compare"
+    "shortcode" true
+  )
+  (dict
+    "name" "canvas"
+    "shortcode" true
+  )
+  (dict
+    "name" "checksum"
+    "section" (slice "download")
+  )
+  (dict
+    "name" "calendar"
+    "basename" true
+  )
+  (dict
+    "name" "addons"
+    "basename" true
+  )
+  (dict
+    "name" "donate"
+    "basename" true
+  )
+  (dict
+    "name" "redirect_to_donate"
+    "section" (slice "download")
+  )
+  (dict
+    "name" "redirect_to_thanks"
+    "section" (slice "donate")
+  )
+-}}
+
+{{- range $scripts -}}
+  {{- if index site.Params (printf "enable_js_%s" .name) -}}
+    {{- if and
+      (cond (.kind) (in .kind $kind) true)
+      (cond (.layout) (in .layout $layout) true)
+      (cond (.section) (in .section $section) true)
+      (cond (.content) (in $content .content) true)
+      (cond (.params) (index $page.Params .name) true)
+      (cond (.shortcode) ($page.HasShortcode .name) true)
+      (cond (.basename) (eq $page_basename .name) true)
+    -}}
+      {{- partialCached "scripts/load_script.html" .name .name }}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}

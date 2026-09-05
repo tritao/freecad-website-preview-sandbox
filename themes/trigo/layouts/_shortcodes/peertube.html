@@ -1,0 +1,240 @@
+{{- /*
+SPDX-License-Identifier: Apache-2.0 license
+SPDX-FileCopyrightText: 2025 Joe Mooring veriphor.com
+SPDX-FileCopyrightText: 2026 FreeCAD
+SPDX-FileNotice: Part of the Trigo theme for Hugo.
+*/ -}}
+
+{{- /* PeerTube embedded video:
+
+  @param {string} url The URL of the PeerTube video.
+  @param {string} [start] Optional time, from the start of the video, when the player should start playing the video (e.g., 42s, 6m7s).
+  @param {string} [stop] Optional time, from the start of the video, when the player should stop playing the video (e.g., 42s, 6m7s).
+  @param {string} [loading=lazy] Loading attribute of the iframe element, either eager or lazy.
+  @param {int} [width=0] Width of the video in pixels. Default responsive if `0`.
+  @param {bool} [fullscreen=true] Whether to allow full screen playback.
+  @param {bool} [autoplay=false] Whether to automatically play the video. Forces mute to true.
+  @param {bool} [controls=true] Whether to display the video controls.
+  @param {bool} [display_link=true] Whether to display the PeerTube link.
+  @param {bool} [display_title=true] Whether to display the video title.
+  @param {bool} [display_warning=true] Whether to display the privacy warning.
+  @param {bool} [loop=false] Whether to indefinitely repeat the video.
+  @param {bool} [mute=false] Whether to mute the video. Always true when autoplay is true.
+  @param {bool} [p2p=true] Whether to enable peer-to-peer bandwidth sharing.
+
+  @returns {template.HTML}
+
+  @link https://docs.joinpeertube.org/api/embed-player
+
+  @example {{< peertube url="https://toobnix.org/w/5jBegFpNbffA1nhmp32kqR" >}}
+
+  Note: Tweaked from code on Hugo forum on 'https://discourse.gohugo.io/t/hugo-peertube-shortcode/29984'.
+
+*/ -}}
+
+
+{{- $url := cond (.IsNamedParams) (.Get "url") (.Get 0) -}}
+
+{{- if $url -}}
+
+  {{- $true_values := slice "true" true 1 "1" -}}
+  {{- $sandbox := "allow-same-origin allow-scripts allow-popups allow-forms" -}}
+
+  {{- /* Get parameters or defaults. */ -}}
+  {{- $start := .Get "start" | default "" -}}
+  {{- $stop := .Get "stop" | default "" -}}
+  {{- $loading := .Get "loading" | default "lazy" -}}
+  {{- $width := .Get "width" | int | default 0 -}}
+  {{- $fullscreen := true -}}
+  {{- with .Get "fullscreen" -}}
+    {{- $fullscreen = in $true_values . -}}
+  {{- end -}}
+  {{- $autoplay := false -}}
+  {{- with .Get "autoplay" -}}
+    {{- $autoplay = in $true_values . -}}
+  {{- end -}}
+  {{- $controls := true -}}
+  {{- with .Get "controls" -}}
+    {{- $controls = in $true_values . -}}
+  {{- end -}}
+  {{- $display_link := true -}}
+  {{- with .Get "display_link" -}}
+    {{- $display_link = in $true_values . -}}
+  {{- end -}}
+  {{- $display_title := true -}}
+  {{- with .Get "display_title" -}}
+    {{- $display_title = in $true_values . -}}
+  {{- end -}}
+  {{- $display_warning := true -}}
+  {{- with .Get "display_warning" -}}
+    {{- $display_warning = in $true_values . -}}
+  {{- end -}}
+  {{- $loop := false -}}
+  {{- with .Get "loop" -}}
+    {{- $loop = in $true_values . -}}
+  {{- end -}}
+  {{- $mute := false -}}
+  {{- with .Get "mute" -}}
+    {{- $mute = in $true_values . -}}
+  {{- end -}}
+  {{- $p2p := true -}}
+  {{- with .Get "p2p" -}}
+    {{- $p2p = in $true_values . -}}
+  {{- end -}}
+
+  {{- /* Mute if autoplay enabled. */ -}}
+  {{- if $autoplay -}}
+    {{- $mute = true -}}
+  {{- end -}}
+
+  {{- /* Determine API URL. */ -}}
+  {{- $api := "" -}}
+  {{- $u := urls.Parse $url -}}
+  {{- if hasPrefix $u.Scheme "http" -}}
+    {{- $path := trim $u.Path "/" -}}
+    {{- $parts := split $path "/" -}}
+    {{- $uuid := index (last 1 $parts) 0 -}}
+    {{- $api = printf "%s://%s/api/v1/videos/%s" $u.Scheme $u.Host $uuid -}}
+  {{- else -}}
+    {{- warnf "%q shortcode: invalid URL scheme %q" .Name $u.Scheme -}}
+  {{- end -}}
+
+  {{- /* Get data from API. */ -}}
+  {{- $data := "" -}}
+
+  {{- if and
+    $api
+    (site.Params.allow_remote | default true)
+  -}}
+
+    {{- with try (
+      resources.GetRemote
+      $api
+      (dict "timeout" (site.Params.timeout | default "5s"))
+    ) -}}
+
+      {{- with .Err -}}
+        {{- warnf "%q shortcode: failed to fetch remote API data %q: %s" $.Name $api . -}}
+
+      {{- else with .Value -}}
+        {{- $data = . | transform.Unmarshal -}}
+        {{- /* Handle null aspect ratio for videos uploaded prior to PeerTube API v6.1.0. */ -}}
+        {{- if not $data.aspectRatio -}}
+          {{- $aspect_ratio := partial "inline/peertube/get-aspect-ratio.html" (dict
+            "data" $data
+            "name" $.Name
+            "position" $.Position
+          ) -}}
+          {{- $data = merge $data (dict "aspectRatio" $aspect_ratio) -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+
+  {{- if $data -}}
+    {{- /* Build src attribute. */ -}}
+    {{- $query_map := dict
+      "autoplay"      (cond $autoplay 1 0)
+      "controlBar"    (cond $controls 1 0)
+      "loop"          (cond $loop 1 0)
+      "muted"         (cond $mute 1 0)
+      "peertubeLink"  (cond $display_link 1 0)
+      "p2p"           (cond $p2p 1 0)
+      "title"         (cond $display_title 1 0)
+      "warningTitle"  (cond $display_warning 1 0)
+    -}}
+    {{- with $start -}}
+      {{- $query_map = merge $query_map (dict "start" .) -}}
+    {{- end -}}
+    {{- with $stop -}}
+      {{- $query_map = merge $query_map (dict "stop" .) -}}
+    {{- end -}}
+    {{- $query_string := querify $query_map -}}
+    {{- $src := printf "%s://%s%s?%s" $u.Scheme $u.Host $data.embedPath $query_string -}}
+
+    {{- if and $width (gt $data.aspectRatio 0) -}}
+      {{- $height := div $width $data.aspectRatio | math.Round -}}
+
+      <iframe
+        title="{{ $data.name }}"
+        width="{{ $width }}"
+        height="{{ $height }}"
+        loading="{{ $loading }}"
+        sandbox="{{ $sandbox }}"
+        src="{{ $src }}"
+        referrerpolicy="strict-origin-when-cross-origin"
+        {{- if $fullscreen }} allow="fullscreen;"{{ end -}}>
+      </iframe>
+
+    {{- else if gt $data.aspectRatio 0 -}}
+      <div style="position: relative; aspect-ratio: {{ $data.aspectRatio }};">
+        <iframe
+          title="{{ $data.name }}"
+          loading="{{ $loading }}"
+          sandbox="{{ $sandbox }}"
+          style="position: absolute; inset: 0; width: 100%; height: 100%;"
+          src="{{ $src }}"
+          referrerpolicy="strict-origin-when-cross-origin"
+          {{- if $fullscreen }} allow="fullscreen;"{{ end -}}>
+        </iframe>
+      </div>
+    {{- end -}}
+  {{- end -}}
+
+{{- else -}}
+  {{- warnf "%q shortcode: missing required 'url' argument on %s" .Name .Position -}}
+{{- end -}}
+
+
+{{- define "_partials/inline/peertube/get-aspect-ratio.html" -}}
+  {{- $aspect_ratio := 0 -}}
+
+  {{- $metadata_url := "" -}}
+  {{- range .data.streamingPlaylists -}}
+
+    {{- range .files -}}
+      {{- if .hasVideo -}}
+        {{- $metadata_url = .metadataUrl -}}
+        {{- break -}}
+      {{- end -}}
+    {{- end -}}
+
+    {{- if $metadata_url -}}
+      {{- break -}}
+    {{- end -}}
+  {{- end -}}
+
+  {{- with $metadata_url -}}
+
+    {{- with try (
+      resources.GetRemote
+      .
+      (dict "timeout" (site.Params.timeout | default "5s"))
+    ) -}}
+
+      {{- with .Err -}}
+        {{- warnf "%q shortcode: unable to get metadata on %s: %s" $.name $.position . -}}
+
+      {{- else with .Value -}}
+        {{- with . | transform.Unmarshal -}}
+
+          {{- range .streams -}}
+            {{- if and .width .height  -}}
+              {{- $aspect_ratio = div .width .height -}}
+              {{- break -}}
+            {{- end -}}
+          {{- end -}}
+
+          {{- if not $aspect_ratio -}}
+            {{- warnf "%q shortcode: unable to get aspect ratio: %s" $.name $.position -}}
+          {{ end -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+
+  {{- else -}}
+    {{- warnf "%q shortcode: unable to get metadata URL: %s" $.name $.position -}}
+  {{- end -}}
+
+  {{- return $aspect_ratio -}}
+{{- end -}}

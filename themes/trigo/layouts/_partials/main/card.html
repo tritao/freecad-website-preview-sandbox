@@ -1,0 +1,81 @@
+{{- /*
+SPDX-License-Identifier: MIT
+SPDX-FileCopyrightText: 2026 FreeCAD
+SPDX-FileNotice: Part of the Trigo theme for Hugo.
+*/ -}}
+
+{{- /* Page card:
+
+  - Set target page in a clickable card with title, description and metadata.
+  - Use thumbnail image, or optional icon and color gradient.
+
+  @returns {template.HTML}
+*/ -}}
+
+{{- $site_params := site.Params -}}
+{{- $page := . -}}
+{{- if not (reflect.IsPage $page) -}}
+  {{- warnf "_partials/main/card.html: not IsPage: %s" . -}}
+  {{- $page = site.GetPage . -}}
+{{- end -}}
+{{- $href := $page.RelPermalink -}}
+{{- $title := $page.Title -}}
+{{- $description := $page.Description -}}
+{{- $params := $page.Params -}}
+{{- $classes := slice "card" -}}
+
+{{- $key := partialCached "utils/cache_key.html" $page $page -}}
+{{- $href = partialCached "utils/link_redirect.html" $page $key -}}
+
+{{- $is_external := partialCached "utils/is_external.html" $href $href -}}
+
+<a
+  class="{{ delimit $classes " " }}"
+  href="{{ $href }}"
+  {{- if $is_external }} target="_blank" rel="external noreferrer nofollow"{{ end -}}>
+
+  {{- with (partialCached "main/thumbnail.html" $page $key) -}}
+    {{- . -}}
+
+  {{- else -}}
+    <div class="card-color"
+      {{- with (partialCached "utils/color_hue.html" $page $key) }} style="--hue: {{ . }};"{{ end -}}>
+
+      {{- with $params.icon -}}
+        <span class="card-icon">
+          {{- partialCached "utils/icon.html" . (lower .) -}}
+        </span>
+      {{- end -}}
+    </div>
+  {{- end -}}
+
+  <h3 class="card-title">
+    {{- $title -}}
+
+    {{- if $is_external -}}
+      {{- partialCached "utils/icon.html" "external" "external" -}}
+    {{- end -}}
+
+    {{- if $page.Draft -}}
+      <sup><span>[{{- i18n "draft" | default "Draft" -}}]</span></sup>
+    {{- end -}}
+  </h3>
+
+  {{- with $description -}}
+    <p class="card-description">{{ . }}</p>
+  {{- end -}}
+
+  {{- if and $site_params.enable_debug (not hugo.IsProduction) -}}
+    {{- with $page.Weight -}}
+      <h2 style="color: crimson;">Weight: {{ . }}</h2>
+    {{- end -}}
+  {{- end -}}
+
+  {{- if and $site_params.show_date $site_params.show_taxonomy -}}
+    <div class="card-metadata">
+      {{- partialCached "main/meta_date.html" . $key -}}
+
+      {{- partialCached "main/meta_taxonomy.html" (dict "page" . "taxonomies" (slice "categories")) $key -}}
+    </div>
+  {{- end -}}
+</a>

@@ -1,0 +1,146 @@
+{{- /*
+SPDX-License-Identifier: MIT
+SPDX-FileCopyrightText: 2026 FreeCAD
+SPDX-FileNotice: Part of the Trigo theme for Hugo.
+*/ -}}
+
+{{- /* Welcome contributors custom partial:
+
+  - Render single-choice tree buttons from welcome front matter labels and link.
+
+  @returns {template.HTML}
+*/ -}}
+
+
+{{- $welcome := .Params.welcome -}}
+{{- with $welcome -}}
+
+  <div class="welcome">
+
+    <input
+      type="radio"
+      name="root"
+      id="root"
+      checked>
+
+    <div class="level-1">
+      {{- range $i, $item := . -}}
+
+        {{- if $item.children -}}
+
+          {{- $id := printf "l1-%s" ($item.id | default (printf "%d" $i)) -}}
+
+          <input
+            type="radio"
+            name="l1"
+            id="{{ $id }}">
+
+          <label
+            class="button"
+            for="{{ $id }}">
+
+            {{- $item.label -}}
+          </label>
+
+          <div class="panel">
+            {{- partial "inline/welcome-level.html" (dict
+              "nodes" $item.children
+              "parent" $id
+              "level" 2
+            ) -}}
+          </div>
+
+        {{- else if not .children -}}
+
+          {{- $href := $item.url -}}
+          {{- with $href -}}
+            {{- with site.GetPage . -}}
+              {{- $key := partialCached "utils/cache_key.html" . . -}}
+              {{- $href = partialCached "utils/link_redirect.html" . $key -}}
+            {{- end -}}
+          {{- end -}}
+
+          {{- $is_external := partialCached "utils/is_external.html" $href $href -}}
+
+          <div class="other">
+            <a
+              class="button"
+              href="{{ $href }}"
+              {{- if $is_external }} target="_blank" rel="external noreferrer nofollow"{{ end -}}>
+
+              {{- $item.label -}}
+
+              {{- if $is_external -}}
+                {{- partialCached "utils/icon.html" "external" "external" -}}
+              {{- end -}}
+            </a>
+          </div>
+        {{- end -}}
+
+      {{- end -}}
+    </div>
+  </div>
+{{- end -}}
+
+{{- define "_partials/inline/welcome-level.html" -}}
+
+  {{- $nodes := .nodes -}}
+  {{- $parent := .parent -}}
+  {{- $level := .level -}}
+
+  <div class="level-{{ $level }}">
+
+    {{- range $i, $node := $nodes -}}
+
+      {{- $id := printf "%s-%s" $parent ($node.id | default (printf "%d" $i)) -}}
+
+      {{- if $node.children -}}
+
+        <input
+          type="radio"
+          name="l{{ $level }}"
+          id="{{ $id }}">
+
+        <label
+          class="button"
+          for="{{ $id }}">
+
+          {{- $node.label -}}
+        </label>
+
+        <div class="panel">
+          {{- partial "inline/welcome-level.html" (dict
+            "nodes" $node.children
+            "parent" $id
+            "level" (add $level 1)
+          ) -}}
+        </div>
+
+      {{- else -}}
+
+        {{- $href := $node.url -}}
+        {{- with $href -}}
+          {{- with site.GetPage . -}}
+            {{- $key := partialCached "utils/cache_key.html" . . -}}
+            {{- $href = partialCached "utils/link_redirect.html" . $key -}}
+          {{- end -}}
+        {{- end -}}
+
+        {{- $is_external := partialCached "utils/is_external.html" $href $href -}}
+
+        <a
+          class="button"
+          href="{{ $href }}"
+          {{- if $is_external }} target="_blank" rel="external noreferrer nofollow"{{ end -}}>
+
+          {{- $node.label -}}
+
+          {{- if $is_external -}}
+            {{- partialCached "utils/icon.html" "external" "external" -}}
+          {{- end -}}
+        </a>
+
+      {{- end -}}
+    {{- end -}}
+  </div>
+{{- end -}}

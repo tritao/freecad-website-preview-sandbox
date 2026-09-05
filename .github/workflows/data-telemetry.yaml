@@ -1,0 +1,69 @@
+name: Update Telemetry data
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 22 * * 0" # Weekly on Sunday 22:00 UTC
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: telemetry
+  cancel-in-progress: false
+
+jobs:
+  telemetry:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Restore Telemetry cache
+        id: cache-restore
+        uses: actions/cache/restore@v6
+        with:
+          path: .cache/telemetry
+          key: telemetry-${{ github.ref_name }}
+          restore-keys: |
+            telemetry-${{ github.ref_name }}-
+            telemetry-
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+
+      - name: Install dependencies
+        run: |
+          pip install requests
+
+      - name: Run Telemetry script
+        run: |
+          python tools/workflows/telemetry.py
+
+      - name: Get date
+        id: date
+        run: |
+          echo "date=$(date -u +'%Y-%m-%d')" >> "$GITHUB_OUTPUT"
+
+
+      - name: Create Pull Request with updated Telemetry data
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          add-paths: |
+            data/telemetry.json
+          commit-message: "Action: Update Telemetry data - ${{ steps.date.outputs.date }}"
+          title: "Action: Update Telemetry data - ${{ steps.date.outputs.date }}"
+          body: |
+            Automated update of Telemetry data.
+          branch: automation/update-telemetry-${{ steps.date.outputs.date }}
+          delete-branch: true
+
+
+      - name: Save Telemetry cache
+        uses: actions/cache/save@v6
+        with:
+          path: .cache/telemetry
+          key: telemetry-${{ github.ref_name }}

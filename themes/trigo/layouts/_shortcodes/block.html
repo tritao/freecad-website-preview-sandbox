@@ -1,0 +1,70 @@
+{{- /*
+SPDX-License-Identifier: MIT
+SPDX-FileCopyrightText: 2026 FreeCAD
+SPDX-FileNotice: Part of the Trigo theme for Hugo.
+*/ -}}
+
+{{- /* Block shortcode:
+
+  @param {string} content – Block content.
+  @param {string} [title] – Optional block title.
+  @param {string} [css_class] – Optional CSS class for whole block container.
+  @param {string} [title_class] – Optional CSS class for title.
+  @param {string} [content_class] – Optional CSS class for content.
+
+  @return {HTML} Render full-width block layout container with optional title and content.
+
+  @example {{< block title="My Title" content="Inline content" css_class="accent" >}}
+  @example {{< block "Inline content" "My Title" "accent" >}}
+  @example
+    {{< block css_class="accent" >}}
+      Markdown content between tags.
+    {{< /block >}}
+
+*/ -}}
+
+
+{{- $content := .InnerDeindent
+  | default (cond (.IsNamedParams) (.Get "content") (.Get 0))
+  | strings.TrimSpace
+-}}
+
+{{- if $content -}}
+
+  {{- $title := cond (.IsNamedParams) (.Get "title") (.Get 1) -}}
+  {{- $block_class := cond (.IsNamedParams) (.Get "css_class") (.Get 2) -}}
+  {{- $title_class := cond (.IsNamedParams) (.Get "title_class") (.Get 3) -}}
+  {{- $content_class := cond (.IsNamedParams) (.Get "content_class") (.Get 4) -}}
+
+  {{- $block_classes := slice "block-shortcode" "wide" -}}
+  {{- with $block_class -}}
+    {{- $block_classes = $block_classes | append . -}}
+  {{- end -}}
+
+  {{- $title_classes := slice "block-title" -}}
+  {{- with $title_class -}}
+    {{- $title_classes = $title_classes | append . -}}
+  {{- end -}}
+
+  {{- $content_classes := slice "block-content" -}}
+  {{- with $content_class -}}
+    {{- $content_classes = $content_classes | append . -}}
+  {{- end -}}
+
+  <div class="{{ delimit $block_classes " " }}">
+
+    {{- with $title -}}
+      <h2 class="{{ delimit $title_classes " " }}">
+
+        {{- . -}}
+      </h2>
+    {{- end -}}
+
+    <div class="{{ delimit $content_classes " " }}">
+      {{- $content | .Page.RenderString (dict "display" "block") -}}
+    </div>
+  </div>
+
+{{- else -}}
+  {{- warnf "%q shortcode: missing required 'content' argument on %s" .Name .Position -}}
+{{- end -}}
